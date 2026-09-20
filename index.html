@@ -130,7 +130,7 @@ function toggle(){if(!a.getAttribute("src")){if(loadState())resumeNow();else pla
 function syncPlayBtn(){const b=document.getElementById("btnPlay");if(b)b.textContent=a.paused?"Play":"Pause";}
 function placeOverlay(){document.getElementById("dlg").style.top=document.getElementById("playerBar").getBoundingClientRect().bottom+"px";}
 function showSum(){const L=(i>=0?sichtbar[i]:null)||sichtbar[0];if(!L)return;document.getElementById("dlgT").textContent=labelOf(L);document.getElementById("dlgTags").textContent=(L.tags||[]).join(" ");document.getElementById("dlgB").textContent="Text wird geladen …";placeOverlay();document.getElementById("dlg").classList.add("on");loadLectureText(L).then(function(t){document.getElementById("dlgB").textContent=t||L.sum||"Kein Text gefunden.";});}
-function hideSum(){document.getElementById("dlg").classList.remove("on";}
+function hideSum(){document.getElementById("dlg").classList.remove("on");}
 document.getElementById("btnCloseSum").onclick=hideSum;
 document.getElementById("dlg").onclick=function(e){if(e.target===this)hideSum();};
 a.addEventListener("loadedmetadata",function(){if(resumeTo>0&&isFinite(a.duration)){a.currentTime=Math.min(resumeTo,Math.max(0,a.duration-1));resumeTo=0;}});
