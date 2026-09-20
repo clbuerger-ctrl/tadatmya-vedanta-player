@@ -85,7 +85,9 @@ function ym(){return ymd().slice(0,7);}
 function countHit(key){return fetch(COUNT_API+"/hit/"+encodeURIComponent(key)).then(function(r){return r.json();}).then(function(j){return +j.value||0;}).catch(function(){return 0;});}
 function countGet(key){return fetch(COUNT_API+"/get/"+encodeURIComponent(key)).then(function(r){return r.ok?r.json():{value:0};}).then(function(j){return +j.value||0;}).catch(function(){return 0;});}
 function countSet(key,val){return fetch(COUNT_API+"/set/"+encodeURIComponent(key)+"?value="+encodeURIComponent(val)).then(function(r){return r.json();}).then(function(j){return +j.value||val;}).catch(function(){return val;});}
-function fmtMin(min){min=Math.max(0,Math.floor(min||0));if(min<60)return min+" Min";return Math.floor(min/60)+":"+String(min%60).padStart(2,"0")+" Std";}
+function fmtMinOnly(min){min=Math.max(0,Math.round(min||0));return min+" min";}
+function fmtHours(min){min=Math.max(0,min||0);const h=min/60;if(h<10)return (Math.round(h*10)/10)+" h";return Math.round(h)+" h";}
+function fmtMHD(min){min=Math.max(0,Math.round(min||0));const d=Math.floor(min/1440);min-=d*1440;const h=Math.floor(min/60);min-=h*60;const p=[];if(d)p.push(d+" d");if(h)p.push(h+" h");if(min||!p.length)p.push(min+" min");return p.join(" ");}
 function drawStats(){
   let box=document.getElementById("tv-stats");
   if(!box){
@@ -99,7 +101,7 @@ function drawStats(){
   const d=TVS.day==null?"—":TVS.day;
   const m=TVS.month==null?"—":TVS.month;
   const t=TVS.total==null?"—":TVS.total;
-  box.innerHTML="Aufrufe · Tag "+d+" · Monat "+m+" · Gesamt "+t+"<br>Hörzeit · Tag "+fmtMin(TVS.dmin)+" · Monat "+fmtMin(TVS.mmin)+" · Gesamt "+fmtMin(TVS.tmin);
+  box.innerHTML="Aufrufe: heute "+d+", Monat "+m+" = gesamt "+t+"<br>Hörzeit: heute "+fmtMinOnly(TVS.dmin)+", Monat "+fmtHours(TVS.mmin)+" = gesamt "+fmtMHD(TVS.tmin);
 }
 function hookListenTime(){
   const a=document.getElementById("a");
