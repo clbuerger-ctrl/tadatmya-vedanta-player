@@ -77,6 +77,67 @@ function ensureTextDlgFix(){
   const fb=document.getElementById("fbDlg");
   if(fb) fb.style.top="0px";
 }
+const COUNT_API="https://countapi.mileshilliard.com/api/v1";
+const CK="tvp-clbuerger-";
+const TVS={day:null,month:null,total:null,dmin:0,mmin:0,tmin:0,acc:0,last:0};
+function ymd(){const d=new Date(),p=function(n){return String(n).padStart(2,"0");};return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());}
+function ym(){return ymd().slice(0,7);}
+function countHit(key){return fetch(COUNT_API+"/hit/"+encodeURIComponent(key)).then(function(r){return r.json();}).then(function(j){return +j.value||0;}).catch(function(){return null;});}
+function countGet(key){return fetch(COUNT_API+"/get/"+encodeURIComponent(key)).then(function(r){return r.ok?r.json():{value:0};}).then(function(j){return +j.value||0;}).catch(function(){return null;});}
+function fmtMin(min){min=Math.max(0,Math.floor(min||0));if(min<60)return min+" Min";return Math.floor(min/60)+":"+String(min%60).padStart(2,"0")+" Std";}
+function drawStats(){
+  let box=document.getElementById("tv-stats");
+  if(!box){
+    const st=document.createElement("style");
+    st.textContent="#tv-stats{position:fixed;right:10px;bottom:22px;font-size:.68rem;color:#cbb89a;line-height:1.35;text-align:right;z-index:6;pointer-events:none;max-width:18rem}.bd-mark{bottom:4px}";
+    document.head.appendChild(st);
+    box=document.createElement("div"); box.id="tv-stats"; document.body.appendChild(box);
+  }
+  const d=TVS.day==null?"—":TVS.day;
+  const m=TVS.month==null?"—":TVS.month;
+  const t=TVS.total==null?"—":TVS.total;
+  box.innerHTML="Aufrufe · Tag "+d+" · Monat "+m+" · Gesamt "+t+"<br>Hörzeit · Tag "+fmtMin(TVS.dmin)+" · Monat "+fmtMin(TVS.mmin)+" · Gesamt "+fmtMin(TVS.tmin);
+}
+function hookListenTime(){
+  const a=document.getElementById("a");
+  if(!a||a.__tvListen) return;
+  a.__tvListen=1;
+  a.addEventListener("timeupdate",function(){
+    if(a.paused){ TVS.last=0; return; }
+    const now=Date.now();
+    if(TVS.last){
+      const add=Math.min(2.5,(now-TVS.last)/1000);
+      if(add>0){ TVS.acc+=add; TVS.dmin+=add/60; TVS.mmin+=add/60; TVS.tmin+=add/60; }
+    }
+    TVS.last=now;
+    if(TVS.acc>=60){
+      TVS.acc-=60;
+      countHit(CK+"min-"+ymd());
+      countHit(CK+"min-"+ym());
+      countHit(CK+"min-total").then(function(v){ if(v!=null) TVS.tmin=v; drawStats(); });
+    }
+    if(Math.floor(TVS.acc)%15<2) drawStats();
+  });
+  a.addEventListener("pause",function(){ TVS.last=0; });
+}
+function ensureStats(){
+  if(window.__tvStatsOn) return;
+  window.__tvStatsOn=1;
+  drawStats();
+  hookListenTime();
+  Promise.all([
+    countHit(CK+"opens-"+ymd()),
+    countHit(CK+"opens-"+ym()),
+    countHit(CK+"opens-total"),
+    countGet(CK+"min-"+ymd()),
+    countGet(CK+"min-"+ym()),
+    countGet(CK+"min-total")
+  ]).then(function(v){
+    TVS.day=v[0]; TVS.month=v[1]; TVS.total=v[2];
+    TVS.dmin=v[3]||0; TVS.mmin=v[4]||0; TVS.tmin=v[5]||0;
+    drawStats();
+  });
+}
 const FB_REMOTE="feedbacks.json";
 const FB_FALLBACK="https://raw.githubusercontent.com/clbuerger-ctrl/tadatmya-vedanta-player/main/feedbacks.json";
 const FB_LOCAL="tv-player-feedbacks-v1";
@@ -170,7 +231,7 @@ function sendFb(){
 function ensureCredit(){
   if(document.querySelector(".bd-mark")) return;
   const st=document.createElement("style");
-  st.textContent=".bd-mark{position:fixed;right:10px;bottom:6px;font-size:.68rem;color:#7a6a58;opacity:.7;pointer-events:none;z-index:5;}";
+  st.textContent=".bd-mark{position:fixed;right:10px;bottom:4px;font-size:.68rem;color:#7a6a58;opacity:.7;pointer-events:none;z-index:5;}";
   document.head.appendChild(st);
   const d=document.createElement("div");
   d.className="bd-mark";
@@ -199,6 +260,7 @@ document.addEventListener("DOMContentLoaded",function(){
   ensureCoverLink();
   ensureCoverBlurb();
   ensureTextDlgFix();
+  ensureStats();
   fixLecture2b();
 });
 ensureCredit();
@@ -207,3 +269,4 @@ ensureTwoCol();
 ensureCoverLink();
 ensureCoverBlurb();
 ensureTextDlgFix();
+ensureStats();
