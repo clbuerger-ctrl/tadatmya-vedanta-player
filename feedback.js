@@ -90,9 +90,11 @@ function drawStats(){
   let box=document.getElementById("tv-stats");
   if(!box){
     const st=document.createElement("style");
-    st.textContent="#tv-stats{position:fixed;right:10px;bottom:22px;font-size:.68rem;color:#cbb89a;line-height:1.35;text-align:right;z-index:6;pointer-events:none;max-width:18rem}.bd-mark{bottom:4px}";
+    st.textContent="#tv-stats{font-size:.68rem;color:#cbb89a;line-height:1.35;text-align:right;padding:4px 12px 6px;margin:0}";
     document.head.appendChild(st);
-    box=document.createElement("div"); box.id="tv-stats"; document.body.appendChild(box);
+    box=document.createElement("div"); box.id="tv-stats";
+    const foot=document.querySelector("footer.fb");
+    if(foot) foot.appendChild(box); else document.body.appendChild(box);
   }
   const d=TVS.day==null?"—":TVS.day;
   const m=TVS.month==null?"—":TVS.month;
@@ -250,12 +252,13 @@ function sendFb(){
 function ensureCredit(){
   if(document.querySelector(".bd-mark")) return;
   const st=document.createElement("style");
-  st.textContent=".bd-mark{position:fixed;right:10px;bottom:4px;font-size:.68rem;color:#7a6a58;opacity:.7;pointer-events:none;z-index:5;}";
+  st.textContent=".bd-mark{display:block;text-align:right;padding:0 12px 10px;font-size:.68rem;color:#7a6a58;opacity:.7;}";
   document.head.appendChild(st);
   const d=document.createElement("div");
   d.className="bd-mark";
   d.textContent="BD Bonn, Mannheim 2026";
-  document.body.appendChild(d);
+  const foot=document.querySelector("footer.fb");
+  if(foot) foot.appendChild(d); else document.body.appendChild(d);
 }
 function ensureAppName(){
   document.title="TadatmyaVedantaPlayer";
