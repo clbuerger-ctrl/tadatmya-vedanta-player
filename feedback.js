@@ -1,5 +1,5 @@
 const FILE_2B="Tādātmya Vedānta - Vortrag #2b zum Buch über die Philosophie der Hari Bhakta Sampradaya - Vertiefung.mp3";
-const BOOK_URL="https://www.amazon.de/T%C4%81d%C4%81tmya-Ved%C4%81nta-Treatise-Philosophy-Samprad%C4%81ya-ebook/dp/B0FW4YJYJS";
+const BOOK_URL="https://bhaktishop.com/products/tadatmya-vedanta";
 const BOOK_BLURB="Dieses Werk stellt Tādātmya Vedānta vor, die Philosophie der Hari Bhakta Sampradāya, begründet von Paramahamsa Vishwananda. Es beleuchtet die Bausteine der Wirklichkeit und ihre Verbindung, das höchste Ziel spiritueller Verwirklichung sowie den Weg dorthin. Als philosophische Abhandlung und hingebungsvolles Angebot ist es eine Einladung zu Just Love.";
 function fixLecture2b(){
   const list=window.LESUNGEN;
@@ -21,7 +21,7 @@ setTimeout(fixLecture2b, 50);
 function ensureTwoCol(){
   let st=document.getElementById("tv-twocol");
   if(!st){ st=document.createElement("style"); st.id="tv-twocol"; document.head.appendChild(st); }
-  st.textContent="@media (min-width:800px){.list{display:grid;grid-template-columns:1fr 1fr}.item{border-right:1px solid #3d2f26}.item:nth-child(even){border-right:none}}.cover-row{display:flex;gap:16px;align-items:center;justify-content:center;max-width:46rem;margin:0 auto 8px;padding:0 12px}.cover-row .cover{height:200px;margin:0}.cover-blurb{font-size:.8rem;line-height:1.45;color:#eadfcf;text-align:left;max-width:22rem;font-style:normal;font-family:system-ui,Segoe UI,Roboto,sans-serif}@media (max-width:700px){.cover-row{flex-direction:column}.cover-blurb{text-align:center;max-width:22rem}}";
+  st.textContent="@media (min-width:800px){.list{display:grid;grid-template-columns:1fr 1fr}.item{border-right:1px solid #3d2f26}}@media (min-width:1200px){.list{grid-template-columns:1fr 1fr 1fr}}.cover-row{display:flex;gap:16px;align-items:center;justify-content:center;max-width:46rem;margin:0 auto 8px;padding:0 12px}.cover-row .cover{height:200px;margin:0}.cover-blurb{font-size:.8rem;line-height:1.45;color:#eadfcf;text-align:left;max-width:22rem;font-style:normal;font-family:system-ui,Segoe UI,Roboto,sans-serif}@media (max-width:700px){.cover-row{flex-direction:column}.cover-blurb{text-align:center;max-width:22rem}}";
 }
 function ensureCoverLink(){
   const img=document.querySelector("img.cover");
@@ -30,13 +30,14 @@ function ensureCoverLink(){
     img.parentElement.href=BOOK_URL;
     img.parentElement.target="_blank";
     img.parentElement.rel="noopener noreferrer";
+    img.parentElement.title="Tādātmya Vedānta im Bhakti Shop";
     return;
   }
   const a=document.createElement("a");
   a.href=BOOK_URL;
   a.target="_blank";
   a.rel="noopener noreferrer";
-  a.title="Tādātmya Vedānta bei Amazon";
+  a.title="Tādātmya Vedānta im Bhakti Shop";
   img.parentNode.insertBefore(a, img);
   a.appendChild(img);
 }
