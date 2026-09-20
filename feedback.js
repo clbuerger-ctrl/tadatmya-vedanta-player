@@ -300,11 +300,7 @@ function ensureAutoStart(){
     }
   }
   paintBtn();
-  const a=document.getElementById("a");
-  if(a&&!a.__tvAutoHook){
-    a.__tvAutoHook=1;
-    a.addEventListener("play", cancelAuto);
-  }
+  const a0=document.getElementById("a");
   document.querySelectorAll("#btnPlay, #btnResume").forEach(function(el){
     el.addEventListener("click", cancelAuto);
   });
@@ -312,12 +308,41 @@ function ensureAutoStart(){
   try{ st=typeof loadState==="function"?loadState():JSON.parse(localStorage.getItem("tv-player-resume-v1")||"null"); }catch(e){ st=null; }
   if(!isOn() || !st || !st.file) return;
   const play=document.getElementById("btnPlay");
-  let n=0;
-  blink=setInterval(function(){ if(play) play.style.opacity=(n++%2)?"1":".35"; }, 400);
-  timer=setTimeout(function(){
-    stopBlink();
+  function kickResume(){
     if(cancelled || !isOn()) return;
+    const pos=st.time||0;
     if(typeof resumeNow==="function") resumeNow();
+    const a=document.getElementById("a");
+    if(!a) return;
+    function go(){
+      try{
+        if(pos>0 && isFinite(a.duration) && a.duration>1){
+          a.currentTime=Math.min(pos, a.duration-1);
+        }
+      }catch(e){}
+      const p=a.play();
+      if(p&&p.catch)p.catch(function(){
+        const err=document.getElementById("err");
+        if(err) err.textContent="AutoStart: einmal Play tippen.";
+      });
+    }
+    if(a.readyState>=2) go();
+    else {
+      a.addEventListener("loadedmetadata", go, {once:true});
+      a.addEventListener("canplay", go, {once:true});
+    }
+  }
+  timer=setTimeout(function(){
+    if(cancelled || !isOn()) return;
+    let n=0;
+    blink=setInterval(function(){
+      if(play) play.style.opacity=(n%2)?"1":".35";
+      n++;
+      if(n>=4){
+        stopBlink();
+        kickResume();
+      }
+    }, 280);
   }, 8000);
 }
 function ensureAppName(){
