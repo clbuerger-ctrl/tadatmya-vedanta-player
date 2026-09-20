@@ -21,7 +21,7 @@ setTimeout(fixLecture2b, 50);
 function ensureTwoCol(){
   let st=document.getElementById("tv-twocol");
   if(!st){ st=document.createElement("style"); st.id="tv-twocol"; document.head.appendChild(st); }
-  st.textContent="@media (min-width:800px){.list{display:grid;grid-template-columns:1fr 1fr}.item{border-right:1px solid #3d2f26}}@media (min-width:1200px){.list{grid-template-columns:1fr 1fr 1fr}}.cover-row{display:flex;gap:16px;align-items:center;justify-content:center;max-width:46rem;margin:0 auto 8px;padding:0 12px}.cover-row .cover{height:200px;margin:0}.cover-blurb{font-size:.8rem;line-height:1.45;color:#eadfcf;text-align:left;max-width:22rem;font-style:normal;font-family:system-ui,Segoe UI,Roboto,sans-serif}@media (max-width:700px){.cover-row{flex-direction:column}.cover-blurb{text-align:center;max-width:22rem}}";
+  st.textContent=".list,.item,.item .tags{font-family:system-ui,Segoe UI,Roboto,sans-serif;font-style:normal}@media (min-width:800px){.list{display:grid;grid-template-columns:1fr 1fr}.item{border-right:1px solid #3d2f26}}@media (min-width:1200px){.list{grid-template-columns:1fr 1fr 1fr}}.cover-row{display:flex;gap:16px;align-items:center;justify-content:center;max-width:46rem;margin:0 auto 8px;padding:0 12px}.cover-row .cover{height:200px;margin:0}.cover-blurb{font-size:.8rem;line-height:1.45;color:#eadfcf;text-align:left;max-width:22rem;font-style:normal;font-family:system-ui,Segoe UI,Roboto,sans-serif}@media (max-width:700px){.cover-row{flex-direction:column}.cover-blurb{text-align:center;max-width:22rem}}";
 }
 function ensureCoverLink(){
   const img=document.querySelector("img.cover");
