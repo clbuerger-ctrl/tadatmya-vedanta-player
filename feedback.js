@@ -1,5 +1,6 @@
 const FILE_2B="Tādātmya Vedānta - Vortrag #2b zum Buch über die Philosophie der Hari Bhakta Sampradaya - Vertiefung.mp3";
 const BOOK_URL="https://www.amazon.de/T%C4%81d%C4%81tmya-Ved%C4%81nta-Treatise-Philosophy-Samprad%C4%81ya-ebook/dp/B0FW4YJYJS";
+const BOOK_BLURB="Dieses Werk stellt Tādātmya Vedānta vor, die Philosophie der Hari Bhakta Sampradāya, begründet von Paramahamsa Vishwananda. Es beleuchtet die Bausteine der Wirklichkeit und ihre Verbindung, das höchste Ziel spiritueller Verwirklichung sowie den Weg dorthin. Als philosophische Abhandlung und hingebungsvolles Angebot ist es eine Einladung zu Just Love.";
 function fixLecture2b(){
   const list=window.LESUNGEN;
   if(!list||!list.length) return;
@@ -21,7 +22,7 @@ function ensureTwoCol(){
   if(document.getElementById("tv-twocol")) return;
   const st=document.createElement("style");
   st.id="tv-twocol";
-  st.textContent="@media (min-width:800px){.list{display:grid;grid-template-columns:1fr 1fr}.item{border-right:1px solid #3d2f26}.item:nth-child(even){border-right:none}}";
+  st.textContent="@media (min-width:800px){.list{display:grid;grid-template-columns:1fr 1fr}.item{border-right:1px solid #3d2f26}.item:nth-child(even){border-right:none}}.cover-row{display:flex;gap:16px;align-items:center;justify-content:center;max-width:46rem;margin:0 auto 8px;padding:0 12px}.cover-row .cover{height:200px;margin:0}.cover-blurb{font-size:.78rem;line-height:1.4;color:#b7a48c;text-align:left;max-width:22rem}@media (max-width:700px){.cover-row{flex-direction:column}.cover-blurb{text-align:center;max-width:22rem}}";
   document.head.appendChild(st);
 }
 function ensureCoverLink(){
@@ -40,6 +41,20 @@ function ensureCoverLink(){
   a.title="Tādātmya Vedānta bei Amazon";
   img.parentNode.insertBefore(a, img);
   a.appendChild(img);
+}
+function ensureCoverBlurb(){
+  if(document.querySelector(".cover-blurb")) return;
+  const img=document.querySelector("img.cover");
+  if(!img) return;
+  const node=img.parentElement && img.parentElement.tagName==="A" ? img.parentElement : img;
+  const row=document.createElement("div");
+  row.className="cover-row";
+  const p=document.createElement("p");
+  p.className="cover-blurb";
+  p.textContent=BOOK_BLURB;
+  node.parentNode.insertBefore(row, node);
+  row.appendChild(node);
+  row.appendChild(p);
 }
 const FB_REMOTE="feedbacks.json";
 const FB_FALLBACK="https://raw.githubusercontent.com/clbuerger-ctrl/tadatmya-vedanta-player/main/feedbacks.json";
@@ -162,9 +177,11 @@ document.addEventListener("DOMContentLoaded",function(){
   ensureAppName();
   ensureTwoCol();
   ensureCoverLink();
+  ensureCoverBlurb();
   fixLecture2b();
 });
 ensureCredit();
 ensureAppName();
 ensureTwoCol();
 ensureCoverLink();
+ensureCoverBlurb();
