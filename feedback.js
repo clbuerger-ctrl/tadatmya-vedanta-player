@@ -21,7 +21,7 @@ setTimeout(fixLecture2b, 50);
 function ensureTwoCol(){
   let st=document.getElementById("tv-twocol");
   if(!st){ st=document.createElement("style"); st.id="tv-twocol"; document.head.appendChild(st); }
-  st.textContent="@media (min-width:800px){.list{display:grid;grid-template-columns:1fr 1fr}.item{border-right:1px solid #3d2f26}.item:nth-child(even){border-right:none}}.cover-row{display:flex;gap:16px;align-items:center;justify-content:center;max-width:46rem;margin:0 auto 8px;padding:0 12px}.cover-row .cover{height:200px;margin:0}.cover-blurb{font-size:.78rem;line-height:1.4;color:#eadfcf;text-align:left;max-width:22rem}@media (max-width:700px){.cover-row{flex-direction:column}.cover-blurb{text-align:center;max-width:22rem}}";
+  st.textContent="@media (min-width:800px){.list{display:grid;grid-template-columns:1fr 1fr}.item{border-right:1px solid #3d2f26}.item:nth-child(even){border-right:none}}.cover-row{display:flex;gap:16px;align-items:center;justify-content:center;max-width:46rem;margin:0 auto 8px;padding:0 12px}.cover-row .cover{height:200px;margin:0}.cover-blurb{font-size:.78rem;line-height:1.4;color:#eadfcf;text-align:left;max-width:22rem}@media (max-width:700px){.cover-row{flex-direction:column}.cover-blurb{text-align:center;max-width:22rem}}.overlay{z-index:80!important;top:0!important;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}.overlay .panel{max-height:calc(100dvh - 24px);max-height:calc(100vh - 24px)}.overlay .dlgfoot{position:sticky;bottom:0;background:#2a211b;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}.overlay .dlghead{display:flex;align-items:center;justify-content:space-between;gap:8px}.xclose{min-height:40px;padding:6px 12px;flex:0 0 auto}";
 }
 function ensureCoverLink(){
   const img=document.querySelector("img.cover");
@@ -53,6 +53,28 @@ function ensureCoverBlurb(){
   node.parentNode.insertBefore(row, node);
   row.appendChild(node);
   row.appendChild(p);
+}
+function addHeadClose(dlgId, hideFn){
+  const dlg=document.getElementById(dlgId);
+  if(!dlg) return;
+  const head=dlg.querySelector(".dlghead");
+  if(!head || head.querySelector(".xclose")) return;
+  const b=document.createElement("button");
+  b.type="button";
+  b.className="xclose gold";
+  b.textContent="Schließen";
+  b.onclick=hideFn;
+  head.appendChild(b);
+}
+function ensureTextDlgFix(){
+  addHeadClose("dlg", function(){ if(typeof hideSum==="function") hideSum(); });
+  addHeadClose("fbDlg", hideFb);
+  window.placeOverlay=function(){
+    const d=document.getElementById("dlg");
+    if(d) d.style.top="0px";
+  };
+  const fb=document.getElementById("fbDlg");
+  if(fb) fb.style.top="0px";
 }
 const FB_REMOTE="feedbacks.json";
 const FB_FALLBACK="https://raw.githubusercontent.com/clbuerger-ctrl/tadatmya-vedanta-player/main/feedbacks.json";
@@ -126,8 +148,7 @@ function refreshFb(){
 function openFb(){
   const dlg=document.getElementById("fbDlg");
   dlg.classList.add("on");
-  const bar=document.getElementById("playerBar");
-  if(bar) dlg.style.top=bar.getBoundingClientRect().bottom+"px";
+  dlg.style.top="0px";
   newCaptcha();
   refreshFb();
 }
@@ -176,6 +197,7 @@ document.addEventListener("DOMContentLoaded",function(){
   ensureTwoCol();
   ensureCoverLink();
   ensureCoverBlurb();
+  ensureTextDlgFix();
   fixLecture2b();
 });
 ensureCredit();
@@ -183,3 +205,4 @@ ensureAppName();
 ensureTwoCol();
 ensureCoverLink();
 ensureCoverBlurb();
+ensureTextDlgFix();
