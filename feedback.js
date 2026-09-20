@@ -16,6 +16,13 @@ function fixLecture2b(){
 }
 fixLecture2b();
 setTimeout(fixLecture2b, 50);
+function ensureTwoCol(){
+  if(document.getElementById("tv-twocol")) return;
+  const st=document.createElement("style");
+  st.id="tv-twocol";
+  st.textContent="@media (min-width:800px){.list{display:grid;grid-template-columns:1fr 1fr}.item{border-right:1px solid #3d2f26}.item:nth-child(even){border-right:none}}";
+  document.head.appendChild(st);
+}
 const FB_REMOTE="feedbacks.json";
 const FB_FALLBACK="https://raw.githubusercontent.com/clbuerger-ctrl/tadatmya-vedanta-player/main/feedbacks.json";
 const FB_LOCAL="tv-player-feedbacks-v1";
@@ -135,7 +142,9 @@ document.addEventListener("DOMContentLoaded",function(){
   if(dlg) dlg.onclick=function(e){if(e.target===this)hideFb();};
   ensureCredit();
   ensureAppName();
+  ensureTwoCol();
   fixLecture2b();
 });
 ensureCredit();
 ensureAppName();
+ensureTwoCol();
