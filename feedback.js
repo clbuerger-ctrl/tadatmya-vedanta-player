@@ -136,29 +136,28 @@ function ensureStats(){
   const dayK=CK+"opens-"+ymd();
   const monK=CK+"opens-"+ym();
   const totK=CK+"opens-total";
+  const already=sessionStorage.getItem("tvp-open-session")==="1";
   Promise.all([
-    countHit(dayK),
-    countHit(monK),
-    countGet(totK),
+    already?countGet(dayK):countHit(dayK),
+    already?countGet(monK):countHit(monK),
+    already?countGet(totK):countHit(totK),
     countGet(CK+"min-"+ymd()),
     countGet(CK+"min-"+ym()),
     countGet(CK+"min-total")
   ]).then(function(v){
-    const day=v[0]||0;
-    const mon=Math.max(v[1]||0, day);
-    const tot=Math.max((v[2]||0)+1, mon);
+    if(!already) try{ sessionStorage.setItem("tvp-open-session","1"); }catch(e){}
+    let day=v[0]||0, mon=v[1]||0, tot=v[2]||0;
+    mon=Math.max(mon, day);
+    tot=Math.max(tot, mon);
+    TVS.day=day; TVS.month=mon; TVS.total=tot;
+    TVS.dmin=v[3]||0;
+    TVS.mmin=Math.max(v[4]||0, TVS.dmin);
+    TVS.tmin=Math.max(v[5]||0, TVS.mmin);
+    drawStats();
     const jobs=[];
     if(mon!==(v[1]||0)) jobs.push(countSet(monK, mon));
-    jobs.push(countSet(totK, tot));
-    return Promise.all(jobs).then(function(){
-      TVS.day=day;
-      TVS.month=mon;
-      TVS.total=tot;
-      TVS.dmin=v[3]||0;
-      TVS.mmin=Math.max(v[4]||0, TVS.dmin);
-      TVS.tmin=Math.max(v[5]||0, TVS.mmin);
-      drawStats();
-    });
+    if(tot!==(v[2]||0)) jobs.push(countSet(totK, tot));
+    if(jobs.length) Promise.all(jobs);
   });
 }
 const FB_REMOTE="feedbacks.json";
