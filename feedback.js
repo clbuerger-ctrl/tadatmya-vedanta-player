@@ -1,3 +1,21 @@
+const FILE_2B="Tādātmya Vedānta - Vortrag #2b zum Buch über die Philosophie der Hari Bhakta Sampradaya - Vertiefung.mp3";
+function fixLecture2b(){
+  const list=window.LESUNGEN;
+  if(!list||!list.length) return;
+  list.forEach(function(L){
+    const f=L.file||"";
+    const t=L.titel||"";
+    if(f.indexOf("Vertiefung #2.mp3")!==-1 || t.indexOf("#2b")!==-1 || f.indexOf("Vortrag #2b")!==-1){
+      L.file=FILE_2B;
+      L.titel="Vortrag #2b — Vertiefung";
+    }
+  });
+  if(typeof zeichne==="function"){
+    try{ zeichne(); }catch(e){}
+  }
+}
+fixLecture2b();
+setTimeout(fixLecture2b, 50);
 const FB_REMOTE="feedbacks.json";
 const FB_FALLBACK="https://raw.githubusercontent.com/clbuerger-ctrl/tadatmya-vedanta-player/main/feedbacks.json";
 const FB_LOCAL="tv-player-feedbacks-v1";
@@ -27,7 +45,7 @@ function renderFbList(items){
   if(!items.length){ box.innerHTML="<p class='tags'>Noch keine Einträge.</p>"; return; }
   box.innerHTML=items.map(function(e){
     const who=[e.name||"",e.stadt||""].filter(Boolean).join(", ");
-    return "<div class='fb-item'><div class='tags'>"+fbFmt(e.date)+(who?" · "+who:"")+"</div><div>"+String(e.text||"").replace(/</g,"&lt;")+"</div></div>";
+    return "<div class='fb-item'><div class='tags'>"+fbFmt(e.date)+(who?" · "+who:"")+"</div><div>"+String(e.text||"").replace(/</g,"<")+"</div></div>";
   }).join("");
 }
 function ensureCaptcha(){
@@ -117,6 +135,7 @@ document.addEventListener("DOMContentLoaded",function(){
   if(dlg) dlg.onclick=function(e){if(e.target===this)hideFb();};
   ensureCredit();
   ensureAppName();
+  fixLecture2b();
 });
 ensureCredit();
 ensureAppName();
