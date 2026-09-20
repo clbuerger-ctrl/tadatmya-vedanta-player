@@ -99,9 +99,24 @@ function ensureCredit(){
   d.textContent="BD Bonn, Mannheim 2026";
   document.body.appendChild(d);
 }
+function ensureAppName(){
+  document.title="TadatmyaVedantaPlayer";
+  if(!document.querySelector('link[rel="manifest"]')){
+    const l=document.createElement("link");
+    l.rel="manifest"; l.href="manifest.json";
+    document.head.appendChild(l);
+  }
+  if(!document.querySelector('meta[name="apple-mobile-web-app-title"]')){
+    const m=document.createElement("meta");
+    m.name="apple-mobile-web-app-title"; m.content="TadatmyaVedantaPlayer";
+    document.head.appendChild(m);
+  }
+}
 document.addEventListener("DOMContentLoaded",function(){
   const dlg=document.getElementById("fbDlg");
   if(dlg) dlg.onclick=function(e){if(e.target===this)hideFb();};
   ensureCredit();
+  ensureAppName();
 });
 ensureCredit();
+ensureAppName();
