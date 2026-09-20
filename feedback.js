@@ -352,7 +352,7 @@ function ensureAutoStart(){
         kickResume();
       }
     }, 280);
-  }, 8000);
+  }, 4000);
 }
 function ensureAppName(){
   document.title="TadatmyaVedantaPlayer";
