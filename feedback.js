@@ -82,8 +82,9 @@ const CK="tvp-clbuerger-";
 const TVS={day:null,month:null,total:null,dmin:0,mmin:0,tmin:0,acc:0,last:0};
 function ymd(){const d=new Date(),p=function(n){return String(n).padStart(2,"0");};return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());}
 function ym(){return ymd().slice(0,7);}
-function countHit(key){return fetch(COUNT_API+"/hit/"+encodeURIComponent(key)).then(function(r){return r.json();}).then(function(j){return +j.value||0;}).catch(function(){return null;});}
-function countGet(key){return fetch(COUNT_API+"/get/"+encodeURIComponent(key)).then(function(r){return r.ok?r.json():{value:0};}).then(function(j){return +j.value||0;}).catch(function(){return null;});}
+function countHit(key){return fetch(COUNT_API+"/hit/"+encodeURIComponent(key)).then(function(r){return r.json();}).then(function(j){return +j.value||0;}).catch(function(){return 0;});}
+function countGet(key){return fetch(COUNT_API+"/get/"+encodeURIComponent(key)).then(function(r){return r.ok?r.json():{value:0};}).then(function(j){return +j.value||0;}).catch(function(){return 0;});}
+function countSet(key,val){return fetch(COUNT_API+"/set/"+encodeURIComponent(key)+"?value="+encodeURIComponent(val)).then(function(r){return r.json();}).then(function(j){return +j.value||val;}).catch(function(){return val;});}
 function fmtMin(min){min=Math.max(0,Math.floor(min||0));if(min<60)return min+" Min";return Math.floor(min/60)+":"+String(min%60).padStart(2,"0")+" Std";}
 function drawStats(){
   let box=document.getElementById("tv-stats");
@@ -114,9 +115,12 @@ function hookListenTime(){
       TVS.acc-=60;
       countHit(CK+"min-"+ymd());
       countHit(CK+"min-"+ym());
-      countHit(CK+"min-total").then(function(v){ if(v!=null) TVS.tmin=v; drawStats(); });
+      countHit(CK+"min-total").then(function(v){
+        TVS.tmin=Math.max(TVS.tmin, v||0, TVS.mmin, TVS.dmin);
+        drawStats();
+      });
     }
-    if(Math.floor(TVS.acc)%15<2) drawStats();
+    drawStats();
   });
   a.addEventListener("pause",function(){ TVS.last=0; });
 }
@@ -125,17 +129,32 @@ function ensureStats(){
   window.__tvStatsOn=1;
   drawStats();
   hookListenTime();
+  const dayK=CK+"opens-"+ymd();
+  const monK=CK+"opens-"+ym();
+  const totK=CK+"opens-total";
   Promise.all([
-    countHit(CK+"opens-"+ymd()),
-    countHit(CK+"opens-"+ym()),
-    countHit(CK+"opens-total"),
+    countHit(dayK),
+    countHit(monK),
+    countGet(totK),
     countGet(CK+"min-"+ymd()),
     countGet(CK+"min-"+ym()),
     countGet(CK+"min-total")
   ]).then(function(v){
-    TVS.day=v[0]; TVS.month=v[1]; TVS.total=v[2];
-    TVS.dmin=v[3]||0; TVS.mmin=v[4]||0; TVS.tmin=v[5]||0;
-    drawStats();
+    const day=v[0]||0;
+    const mon=Math.max(v[1]||0, day);
+    const tot=Math.max((v[2]||0)+1, mon);
+    const jobs=[];
+    if(mon!==(v[1]||0)) jobs.push(countSet(monK, mon));
+    jobs.push(countSet(totK, tot));
+    return Promise.all(jobs).then(function(){
+      TVS.day=day;
+      TVS.month=mon;
+      TVS.total=tot;
+      TVS.dmin=v[3]||0;
+      TVS.mmin=Math.max(v[4]||0, TVS.dmin);
+      TVS.tmin=Math.max(v[5]||0, TVS.mmin);
+      drawStats();
+    });
   });
 }
 const FB_REMOTE="feedbacks.json";
@@ -269,4 +288,3 @@ ensureTwoCol();
 ensureCoverLink();
 ensureCoverBlurb();
 ensureTextDlgFix();
-ensureStats();
