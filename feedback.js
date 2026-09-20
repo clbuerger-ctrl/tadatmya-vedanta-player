@@ -89,7 +89,19 @@ function sendFb(){
   newCaptcha();
   refreshFb();
 }
+function ensureCredit(){
+  if(document.querySelector(".bd-mark")) return;
+  const st=document.createElement("style");
+  st.textContent=".bd-mark{position:fixed;right:10px;bottom:6px;font-size:.68rem;color:#7a6a58;opacity:.7;pointer-events:none;z-index:5;}";
+  document.head.appendChild(st);
+  const d=document.createElement("div");
+  d.className="bd-mark";
+  d.textContent="BD Bonn, Mannheim 2026";
+  document.body.appendChild(d);
+}
 document.addEventListener("DOMContentLoaded",function(){
   const dlg=document.getElementById("fbDlg");
   if(dlg) dlg.onclick=function(e){if(e.target===this)hideFb();};
+  ensureCredit();
 });
+ensureCredit();
