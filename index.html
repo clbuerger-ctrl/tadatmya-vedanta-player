@@ -2,19 +2,143 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tadatmya Vedanta Player</title>
 <style>
-body{margin:0;font-family:Georgia,serif;background:#1a1410;color:#f3e6d0}
-h1{color:#c9a36a;font-weight:normal;font-size:1.2rem;margin:10px 12px 4px}
-.meta{color:#b7a48c;font-size:.85rem;margin:0 12px 12px}
-a{color:#c9a36a}
+:root{--bg:#1a1410;--gold:#c9a36a;--text:#f3e6d0;--muted:#b7a48c;--card:#2a211b}
+*{box-sizing:border-box}
+body{margin:0;font-family:Georgia,serif;background:var(--bg);color:var(--text)}
+header{padding:10px 12px 4px}
+h1{margin:0;font-size:1.15rem;font-weight:normal;color:var(--gold)}
+h2{margin:4px 0 0;font-size:.92rem;font-weight:normal;line-height:1.3}
+.meta{color:var(--muted);font-size:.78rem;margin-top:4px}
+#playerBar{position:sticky;top:0;z-index:30;background:var(--bg);padding-bottom:4px;border-bottom:1px solid #3d2f26}
+.now{padding:4px 12px;min-height:1.2em}
+audio{width:calc(100% - 24px);margin:4px 12px;height:36px}
+.row{display:flex;gap:6px;padding:4px 12px;align-items:center;flex-wrap:wrap}
+.transport{display:flex;gap:8px;padding:6px 12px}
+.transport button{flex:1;min-height:40px}
+input,button{font-size:.85rem;min-height:28px;border-radius:7px}
+input[type=number],input[type=search]{padding:4px 8px;border:1px solid #5a4634;background:#3a2e26;color:var(--text)}
+input[type=number]{width:56px}
+input[type=search]{flex:1;min-width:140px}
+button{background:#4a372b;color:var(--text);border:1px solid #6b5340;padding:4px 9px}
+button.gold{background:#8b6914;border-color:#c9a36a}
+button:disabled{opacity:.45}
+.list{margin:8px 12px 24px;border:1px solid #5a4634;border-radius:10px}
+.item{padding:8px 12px;border-bottom:1px solid #3d2f26;cursor:pointer}
+.item.active{background:#4a372b;color:var(--gold)}
+.tags{color:var(--muted);font-size:.74rem;margin-top:2px}
+.err{color:#e8a0a0;padding:0 12px;font-size:.8rem;min-height:.9em}
+.overlay{display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:15;padding:8px 12px 12px}
+.overlay.on{display:block}
+.panel{background:var(--card);border:1px solid #6b5340;border-radius:12px;max-width:40rem;margin:0 auto;display:flex;flex-direction:column;max-height:52vh}
+.dlghead{padding:10px 12px 4px}
+.panel h3{margin:0;color:var(--gold);font-weight:normal;font-size:1rem}
+.dlgbody{overflow:auto;white-space:pre-wrap;line-height:1.4;flex:1;padding:0 12px 8px}
+.dlgfoot{padding:8px 12px 12px}
+#btnCloseSum{width:100%}
 </style>
 </head>
 <body>
-<h1>Tadatmya Vedanta Player</h1>
-<p class="meta">Die öffentliche Seite wird eingerichtet.</p>
-<p class="meta">Bis Pages aktiv ist: HTML-Datei im Repo nutzen oder die lokale Player-Datei V1.23.</p>
-<p class="meta"><a href="texte/">Texte #1–#34</a></p>
+<header>
+  <h1>Tadatmya Vedanta Player</h1>
+  <h2>Kompendium der Lesungen von Rishi Sahadev und der Satsangs von Swami Revatikanta und Mayuran</h2>
+  <div class="meta">Zeitraum: 13.12.2025 – 18.09.2026</div>
+</header>
+<div id="playerBar">
+  <div class="now" id="now"></div>
+  <audio id="a" controls preload="none" controlsList="nodownload"></audio>
+  <div class="transport">
+    <button type="button" onclick="prev()">&#9664; Zurück</button>
+    <button type="button" class="gold" id="btnPlay" onclick="toggle()">Play</button>
+    <button type="button" onclick="next()">Vor &#9654;</button>
+  </div>
+  <div class="row"><input id="q" type="search" placeholder="Suche #Hashtag oder Wort" oninput="filterList()"></div>
+  <div class="row">
+    <label>#</label>
+    <input id="nr" type="number" min="1" max="99" inputmode="numeric" placeholder="23">
+    <button class="gold" type="button" onclick="playNr()">Play</button>
+    <button class="gold" type="button" id="btnResume" onclick="resumeNow()">Weiterhören</button>
+    <button type="button" onclick="showSum()">Text</button>
+  </div>
+  <div class="row">
+    <label style="font-size:.82rem;color:var(--muted);">Tempo
+      <select id="speed" onchange="setSpeed(this.value)" style="min-height:28px;background:#3a2e26;color:var(--text);border:1px solid #5a4634;border-radius:7px;">
+        <option value="0.25">0.25</option><option value="0.5">0.5</option>
+        <option value="0.75">0.75</option><option value="1" selected>1</option>
+        <option value="1.25">1.25</option><option value="1.5">1.5</option>
+        <option value="1.75">1.75</option><option value="2">2</option>
+      </select>
+    </label>
+  </div>
+  <div class="err" id="err"></div>
+</div>
+<div class="meta" style="padding:6px 12px 0;">Nur Rishi-Vorträge tragen #1–#34. Texte von GitHub, Ton von Dropbox.</div>
+<div class="list" id="list"></div>
+<div class="overlay" id="dlg">
+  <div class="panel">
+    <div class="dlghead"><h3 id="dlgT"></h3></div>
+    <p id="dlgTags" class="tags" style="padding:0 12px;"></p>
+    <div class="dlgbody" id="dlgB"></div>
+    <div class="dlgfoot"><button type="button" id="btnCloseSum">Schließen</button></div>
+  </div>
+</div>
+<script src="lesungen.js"></script>
+<script>
+const FOLDER="https://www.dropbox.com/scl/fo/m10ycst2zjp72cwygc1fo/ALB3AGy0uKvmitTOetYJB4U";
+const RLKEY="ubqr97xi75q2xr6d3jhf4hcyf";
+const STORE="tv-player-resume-v1";
+const TEXT_BASE="texte/";
+const LESUNGEN=(window.LESUNGEN||[]).map(function(L){ L.sum=L.sum||""; return L; });
+function mediaUrl(name){return FOLDER+"?rlkey="+encodeURIComponent(RLKEY)+"&preview="+encodeURIComponent(name)+"&raw=1";}
+const textCache={};
+function loadLectureText(L){
+  const key=L.file;
+  if(textCache[key]!==undefined) return Promise.resolve(textCache[key]);
+  const urls=[];
+  if(L.nr) urls.push(TEXT_BASE+L.nr+".txt");
+  function tryOne(k){
+    if(k>=urls.length){textCache[key]=null;return Promise.resolve(null);}
+    return fetch(urls[k],{cache:"no-store"}).then(function(r){
+      if(!r.ok) return tryOne(k+1);
+      return r.text().then(function(t){ textCache[key]=t; return t; });
+    }).catch(function(){ return tryOne(k+1); });
+  }
+  return tryOne(0);
+}
+function fmt(sec){sec=Math.max(0,Math.floor(sec||0));return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0");}
+function loadState(){try{return JSON.parse(localStorage.getItem(STORE)||"null");}catch(e){return null;}}
+function saveState(){if(i<0||!sichtbar[i])return;localStorage.setItem(STORE,JSON.stringify({file:sichtbar[i].file,time:a.currentTime||0}));updateResume();}
+let i=-1,resumeTo=0,sichtbar=LESUNGEN.slice();
+const a=document.getElementById("a");
+function holdPitch(){a.preservesPitch=true;a.webkitPreservesPitch=true;a.mozPreservesPitch=true;}
+function setSpeed(v){const r=parseFloat(v);a.playbackRate=isFinite(r)&&r>0?r:1;try{holdPitch();}catch(e){}}
+try{holdPitch();}catch(e){}
+a.addEventListener("play",function(){const sel=document.getElementById("speed");if(sel)setSpeed(sel.value);});
+function filterList(){const q=document.getElementById("q").value.trim().toLowerCase();sichtbar=LESUNGEN.filter(function(L){if(!q)return true;return (L.titel+" "+L.file+" "+(L.tags||[]).join(" ")).toLowerCase().indexOf(q)!==-1;});if(i>=sichtbar.length)i=sichtbar.length?0:-1;zeichne();}
+function labelOf(L){return (L.nr?"#"+L.nr+"  ":"")+L.titel;}
+function zeichne(){const box=document.getElementById("list");box.innerHTML="";sichtbar.forEach(function(L,idx){const d=document.createElement("div");d.className="item"+(idx===i?" active":"");d.innerHTML=labelOf(L)+"<div class='tags'>"+(L.tags||[]).join(" ")+"</div>";d.onclick=function(){play(idx,0);};box.appendChild(d);});}
+function updateResume(){const st=loadState();const btn=document.getElementById("btnResume");if(!st||!st.file){btn.disabled=true;btn.textContent="Weiterhören";return;}const L=LESUNGEN.find(function(x){return x.file===st.file;});btn.disabled=false;btn.textContent="Weiterhören · "+(L?labelOf(L):"Datei")+" ("+fmt(st.time)+")";}
+function play(idx,startAt){if(!sichtbar.length)return;i=Math.max(0,Math.min(idx,sichtbar.length-1));const L=sichtbar[i];resumeTo=startAt||0;document.getElementById("now").textContent=labelOf(L);document.getElementById("nr").value=L.nr||"";document.getElementById("err").textContent="";zeichne();a.pause();a.src=mediaUrl(L.file);a.load();const p=a.play();if(p&&p.catch)p.catch(function(){document.getElementById("err").textContent="Kein Ton — einmal Play im Balken tippen.";});}
+function playNr(){const n=parseInt(document.getElementById("nr").value,10);const idx=sichtbar.findIndex(function(L){return L.nr===n;});if(idx<0){document.getElementById("err").textContent="Keine Lesung für #"+n;return;}play(idx,0);}
+function resumeNow(){const st=loadState();if(!st)return;let idx=sichtbar.findIndex(function(L){return L.file===st.file;});if(idx<0){document.getElementById("q").value="";filterList();idx=sichtbar.findIndex(function(L){return L.file===st.file;});}if(idx<0)return;play(idx,st.time||0);}
+function prev(){play(i<0?0:i-1,0);} function next(){play(i<0?0:i+1,0);}
+function toggle(){if(!a.getAttribute("src")){if(loadState())resumeNow();else play(0,0);return;}if(a.paused)a.play();else a.pause();}
+function syncPlayBtn(){const b=document.getElementById("btnPlay");if(b)b.textContent=a.paused?"Play":"Pause";}
+function placeOverlay(){document.getElementById("dlg").style.top=document.getElementById("playerBar").getBoundingClientRect().bottom+"px";}
+function showSum(){const L=(i>=0?sichtbar[i]:null)||sichtbar[0];if(!L)return;document.getElementById("dlgT").textContent=labelOf(L);document.getElementById("dlgTags").textContent=(L.tags||[]).join(" ");document.getElementById("dlgB").textContent="Text wird geladen …";placeOverlay();document.getElementById("dlg").classList.add("on");loadLectureText(L).then(function(t){document.getElementById("dlgB").textContent=t||L.sum||"Kein Text gefunden.";});}
+function hideSum(){document.getElementById("dlg").classList.remove("on");}
+document.getElementById("btnCloseSum").onclick=hideSum;
+document.getElementById("dlg").onclick=function(e){if(e.target===this)hideSum();};
+a.addEventListener("loadedmetadata",function(){if(resumeTo>0&&isFinite(a.duration)){a.currentTime=Math.min(resumeTo,Math.max(0,a.duration-1));resumeTo=0;}});
+a.addEventListener("timeupdate",function(){if(!a.paused)saveState();});
+a.addEventListener("play",function(){syncPlayBtn();});
+a.addEventListener("pause",function(){saveState();syncPlayBtn();});
+a.addEventListener("ended",function(){saveState();next();});
+a.addEventListener("error",function(){document.getElementById("err").textContent="Diese Datei startet nicht."});
+zeichne();updateResume();
+if(!LESUNGEN.length) document.getElementById("err").textContent="Katalog lesungen.js fehlt.";
+</script>
 </body>
 </html>
