@@ -1,4 +1,5 @@
 const FILE_2B="Tādātmya Vedānta - Vortrag #2b zum Buch über die Philosophie der Hari Bhakta Sampradaya - Vertiefung.mp3";
+const BOOK_URL="https://www.amazon.de/T%C4%81d%C4%81tmya-Ved%C4%81nta-Treatise-Philosophy-Samprad%C4%81ya-ebook/dp/B0FW4YJYJS";
 function fixLecture2b(){
   const list=window.LESUNGEN;
   if(!list||!list.length) return;
@@ -22,6 +23,23 @@ function ensureTwoCol(){
   st.id="tv-twocol";
   st.textContent="@media (min-width:800px){.list{display:grid;grid-template-columns:1fr 1fr}.item{border-right:1px solid #3d2f26}.item:nth-child(even){border-right:none}}";
   document.head.appendChild(st);
+}
+function ensureCoverLink(){
+  const img=document.querySelector("img.cover");
+  if(!img) return;
+  if(img.parentElement && img.parentElement.tagName==="A"){
+    img.parentElement.href=BOOK_URL;
+    img.parentElement.target="_blank";
+    img.parentElement.rel="noopener noreferrer";
+    return;
+  }
+  const a=document.createElement("a");
+  a.href=BOOK_URL;
+  a.target="_blank";
+  a.rel="noopener noreferrer";
+  a.title="Tādātmya Vedānta bei Amazon";
+  img.parentNode.insertBefore(a, img);
+  a.appendChild(img);
 }
 const FB_REMOTE="feedbacks.json";
 const FB_FALLBACK="https://raw.githubusercontent.com/clbuerger-ctrl/tadatmya-vedanta-player/main/feedbacks.json";
@@ -143,8 +161,10 @@ document.addEventListener("DOMContentLoaded",function(){
   ensureCredit();
   ensureAppName();
   ensureTwoCol();
+  ensureCoverLink();
   fixLecture2b();
 });
 ensureCredit();
 ensureAppName();
 ensureTwoCol();
+ensureCoverLink();
