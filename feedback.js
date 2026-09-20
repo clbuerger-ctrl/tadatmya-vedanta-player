@@ -1,6 +1,7 @@
 const FB_REMOTE="feedbacks.json";
 const FB_FALLBACK="https://raw.githubusercontent.com/clbuerger-ctrl/tadatmya-vedanta-player/main/feedbacks.json";
 const FB_LOCAL="tv-player-feedbacks-v1";
+let fbSum=0;
 function fbLoadLocal(){try{return JSON.parse(localStorage.getItem(FB_LOCAL)||"[]");}catch(e){return [];}}
 function fbSaveLocal(arr){localStorage.setItem(FB_LOCAL,JSON.stringify(arr));}
 function fbKey(e){return [e.date||"",e.name||"",e.stadt||"",e.text||""].join("|");}
@@ -29,6 +30,27 @@ function renderFbList(items){
     return "<div class='fb-item'><div class='tags'>"+fbFmt(e.date)+(who?" · "+who:"")+"</div><div>"+String(e.text||"").replace(/</g,"&lt;")+"</div></div>";
   }).join("");
 }
+function ensureCaptcha(){
+  if(document.getElementById("fbCaptcha")) return;
+  const text=document.getElementById("fbText");
+  if(!text||!text.parentNode) return;
+  const lab=document.createElement("label");
+  lab.id="fbCaptchaLabel"; lab.htmlFor="fbCaptcha"; lab.textContent="Captcha";
+  const inp=document.createElement("input");
+  inp.id="fbCaptcha"; inp.type="text"; inp.inputMode="numeric"; inp.autocomplete="off";
+  text.parentNode.insertBefore(lab, text.nextSibling);
+  text.parentNode.insertBefore(inp, lab.nextSibling);
+}
+function newCaptcha(){
+  ensureCaptcha();
+  const a=1+Math.floor(Math.random()*8);
+  const b=1+Math.floor(Math.random()*8);
+  fbSum=a+b;
+  const lab=document.getElementById("fbCaptchaLabel");
+  if(lab) lab.textContent="Captcha: "+a+" + "+b+" = ?";
+  const inp=document.getElementById("fbCaptcha");
+  if(inp) inp.value="";
+}
 function refreshFb(){
   const local=fbLoadLocal();
   renderFbList(local);
@@ -50,6 +72,7 @@ function openFb(){
   dlg.classList.add("on");
   const bar=document.getElementById("playerBar");
   if(bar) dlg.style.top=bar.getBoundingClientRect().bottom+"px";
+  newCaptcha();
   refreshFb();
 }
 function hideFb(){document.getElementById("fbDlg").classList.remove("on");}
@@ -58,9 +81,12 @@ function sendFb(){
   const stadt=(document.getElementById("fbStadt").value||"").trim();
   const text=(document.getElementById("fbText").value||"").trim();
   if(!name || !stadt || !text){ alert("Bitte Name, Stadt und Feedback ausfüllen."); return; }
+  const cap=(document.getElementById("fbCaptcha")&&document.getElementById("fbCaptcha").value||"").trim();
+  if(parseInt(cap,10)!==fbSum){ alert("Captcha stimmt nicht."); newCaptcha(); return; }
   const entry={date:new Date().toISOString(),name:name,stadt:stadt,text:text};
   const local=fbLoadLocal(); local.push(entry); fbSaveLocal(local);
   document.getElementById("fbText").value="";
+  newCaptcha();
   refreshFb();
 }
 document.addEventListener("DOMContentLoaded",function(){
