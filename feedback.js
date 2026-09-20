@@ -261,6 +261,65 @@ function ensureCredit(){
   const foot=document.querySelector("footer.fb");
   if(foot) foot.appendChild(d); else document.body.appendChild(d);
 }
+function ensureAutoStart(){
+  if(window.__tvAutoOn) return;
+  window.__tvAutoOn=1;
+  const KEY="tvp-autostart";
+  function isOn(){ const v=localStorage.getItem(KEY); return v===null||v==="1"; }
+  function setOn(v){ localStorage.setItem(KEY, v?"1":"0"); }
+  let timer=null, blink=null, cancelled=false;
+  function paintBtn(){
+    const b=document.getElementById("btnAuto");
+    if(!b) return;
+    b.textContent="AutoStart "+(isOn()?"An":"Aus");
+    if(isOn()) b.classList.add("gold"); else b.classList.remove("gold");
+  }
+  function stopBlink(){
+    if(blink){ clearInterval(blink); blink=null; }
+    const play=document.getElementById("btnPlay");
+    if(play) play.style.opacity="";
+  }
+  function cancelAuto(){
+    cancelled=true;
+    if(timer){ clearTimeout(timer); timer=null; }
+    stopBlink();
+  }
+  if(!document.getElementById("btnAuto")){
+    const b=document.createElement("button");
+    b.id="btnAuto"; b.type="button";
+    b.onclick=function(){
+      setOn(!isOn());
+      paintBtn();
+      if(!isOn()) cancelAuto();
+    };
+    const resume=document.getElementById("btnResume");
+    if(resume&&resume.parentNode) resume.parentNode.appendChild(b);
+    else {
+      const row=document.querySelector("#playerBar .row");
+      if(row) row.appendChild(b);
+    }
+  }
+  paintBtn();
+  const a=document.getElementById("a");
+  if(a&&!a.__tvAutoHook){
+    a.__tvAutoHook=1;
+    a.addEventListener("play", cancelAuto);
+  }
+  document.querySelectorAll("#btnPlay, #btnResume").forEach(function(el){
+    el.addEventListener("click", cancelAuto);
+  });
+  let st=null;
+  try{ st=typeof loadState==="function"?loadState():JSON.parse(localStorage.getItem("tv-player-resume-v1")||"null"); }catch(e){ st=null; }
+  if(!isOn() || !st || !st.file) return;
+  const play=document.getElementById("btnPlay");
+  let n=0;
+  blink=setInterval(function(){ if(play) play.style.opacity=(n++%2)?"1":".35"; }, 400);
+  timer=setTimeout(function(){
+    stopBlink();
+    if(cancelled || !isOn()) return;
+    if(typeof resumeNow==="function") resumeNow();
+  }, 8000);
+}
 function ensureAppName(){
   document.title="TadatmyaVedantaPlayer";
   if(!document.querySelector('link[rel="manifest"]')){
@@ -284,6 +343,7 @@ document.addEventListener("DOMContentLoaded",function(){
   ensureCoverBlurb();
   ensureTextDlgFix();
   ensureStats();
+  ensureAutoStart();
   fixLecture2b();
 });
 ensureCredit();
@@ -292,3 +352,4 @@ ensureTwoCol();
 ensureCoverLink();
 ensureCoverBlurb();
 ensureTextDlgFix();
+ensureAutoStart();
