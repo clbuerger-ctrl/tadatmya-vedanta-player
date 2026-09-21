@@ -211,3 +211,76 @@
     document.addEventListener("DOMContentLoaded", start);
   else start();
 })();
+
+(function () {
+  function reduce() {
+    return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+  function waterCover() {
+    if (window.__tvWaterOn || reduce()) return;
+    var img = document.querySelector("img.cover");
+    if (!img) return;
+    window.__tvWaterOn = 1;
+    function run() {
+      var w = Math.max(80, Math.round(img.getBoundingClientRect().width || 140));
+      var h = Math.max(80, Math.round(img.getBoundingClientRect().height || 200));
+      var dpr = Math.min(2, window.devicePixelRatio || 1);
+      var c = document.createElement("canvas");
+      c.className = img.className;
+      c.setAttribute("role", "img");
+      c.setAttribute("aria-label", img.alt || "Tadatmya Vedanta");
+      c.width = Math.round(w * dpr);
+      c.height = Math.round(h * dpr);
+      c.style.height = h + "px";
+      c.style.width = "auto";
+      c.style.borderRadius = getComputedStyle(img).borderRadius || "4px";
+      c.style.boxShadow = getComputedStyle(img).boxShadow;
+      c.style.display = "block";
+      c.style.margin = getComputedStyle(img).margin;
+      var ctx = c.getContext("2d");
+      if (!ctx) return;
+      var src = new Image();
+      src.onload = function () {
+        img.style.position = "absolute";
+        img.style.opacity = "0";
+        img.style.pointerEvents = "none";
+        img.style.width = "0";
+        img.style.height = "0";
+        img.parentNode.insertBefore(c, img);
+        var t = 0, raf = 0;
+        function frame() {
+          if (document.visibilityState === "hidden") {
+            raf = requestAnimationFrame(frame);
+            return;
+          }
+          t += 0.035;
+          var cw = c.width, ch = c.height;
+          ctx.clearRect(0, 0, cw, ch);
+          for (var y = 0; y < ch; y++) {
+            var n = y / ch;
+            var dx =
+              Math.sin(y / (14 * dpr) + t) * (2.6 * dpr) +
+              Math.sin(y / (7 * dpr) + t * 0.62) * (1.3 * dpr) +
+              Math.sin(n * 6 + t * 0.4) * (0.8 * dpr);
+            ctx.drawImage(src, 0, y / dpr * (src.height / h), src.width, src.height / ch, dx, y, cw, 1);
+          }
+          var g = ctx.createLinearGradient(0, 0, 0, ch);
+          g.addColorStop(0, "rgba(255,255,255,0.06)");
+          g.addColorStop(0.45, "rgba(255,255,255,0)");
+          g.addColorStop(0.55 + Math.sin(t * 0.5) * 0.04, "rgba(200,230,255,0.10)");
+          g.addColorStop(1, "rgba(0,20,40,0.10)");
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, cw, ch);
+          raf = requestAnimationFrame(frame);
+        }
+        frame();
+      };
+      src.src = img.currentSrc || img.src;
+    }
+    if (img.complete && img.naturalWidth) run();
+    else img.addEventListener("load", run, { once: true });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", waterCover);
+  else waterCover();
+  setTimeout(waterCover, 400);
+})();
