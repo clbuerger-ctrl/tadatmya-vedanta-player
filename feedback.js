@@ -86,7 +86,7 @@ function addHeadClose(dlgId, hideFn){
   b.type="button";
   b.className="xclose gold";
   b.textContent="Schließen";
-  b.onclick=hideFn;
+  b.onclick=function(e){ if(e){e.preventDefault();e.stopPropagation();} hideFn(); };
   head.appendChild(b);
 }
 function ensureTextDlgFix(){
@@ -94,10 +94,10 @@ function ensureTextDlgFix(){
   addHeadClose("fbDlg", hideFb);
   window.placeOverlay=function(){
     const d=document.getElementById("dlg");
-    if(d) d.style.top="0px";
+    if(d){ d.style.top="0px"; d.style.left="0px"; d.style.right="0px"; d.style.bottom="0px"; }
   };
   const fb=document.getElementById("fbDlg");
-  if(fb) fb.style.top="0px";
+  if(fb){ fb.style.top="0px"; fb.style.left="0px"; fb.style.right="0px"; fb.style.bottom="0px"; }
 }
 const COUNT_API="https://countapi.mileshilliard.com/api/v1";
 const CK="tvp-clbuerger-";
@@ -278,13 +278,18 @@ function refreshFb(){
   });
 }
 function openFb(){
+  window.__tvModal=true;
   const dlg=document.getElementById("fbDlg");
   dlg.classList.add("on");
   dlg.style.top="0px";
   newCaptcha();
   refreshFb();
 }
-function hideFb(){document.getElementById("fbDlg").classList.remove("on");}
+function hideFb(){
+  window.__tvModal=false;
+  window.__tvGuardUntil=Date.now()+450;
+  document.getElementById("fbDlg").classList.remove("on");
+}
 function sendFb(){
   const name=(document.getElementById("fbName").value||"").trim();
   const stadt=(document.getElementById("fbStadt").value||"").trim();
@@ -315,7 +320,7 @@ function ensureAutoStart(){
   const KEY="tvp-autostart";
   function isOn(){ const v=localStorage.getItem(KEY); return v===null||v==="1"; }
   function setOn(v){ localStorage.setItem(KEY, v?"1":"0"); }
-  let timer=null, blink=null, cancelled=false, armed=false;
+  let timer=null, blink=null, cancelled=false, armed=false, started=false;
   function paintBtn(){
     const b=document.getElementById("btnAuto");
     if(!b) return;
@@ -354,7 +359,8 @@ function ensureAutoStart(){
     el.addEventListener("click", function(){ cancelled=true; stopBlink(); });
   });
   function kickResume(){
-    if(cancelled || !isOn() || !st || !st.file) return;
+    if(cancelled || !isOn() || !st || !st.file || started) return;
+    started=true; armed=false;
     const pos=st.time||0;
     if(typeof resumeNow==="function") resumeNow();
     const a=document.getElementById("a");
@@ -366,7 +372,7 @@ function ensureAutoStart(){
         }
       }catch(e){}
       const p=a.play();
-      if(p&&p.catch)p.catch(function(){ armed=true; });
+      if(p&&p.catch)p.catch(function(){});
     }
     if(a.readyState>=2) go();
     else {
@@ -374,8 +380,10 @@ function ensureAutoStart(){
       a.addEventListener("canplay", go, {once:true});
     }
   }
-  function onGesture(){
-    if(!isOn() || cancelled) return;
+  function onGesture(e){
+    if(!isOn() || cancelled || started) return;
+    if(e && e.target && e.target.closest && e.target.closest(".overlay")) return;
+    if(window.__tvModal) return;
     const a=document.getElementById("a");
     if(a && !a.getAttribute("src") && st && st.file && typeof mediaUrl==="function"){
       a.src=mediaUrl(st.file);
