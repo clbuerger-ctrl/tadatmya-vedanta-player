@@ -213,65 +213,16 @@
 })();
 
 (function () {
-  if (document.getElementById("tv-cover-size")) return;
-  var st = document.createElement("style");
-  st.id = "tv-cover-size";
-  st.textContent =
-    "header{padding-left:0;padding-right:0}" +
-    ".cover-row{max-width:none!important;width:100%;padding:0!important;gap:16px}" +
-    "img.cover,canvas.cover{display:block;width:100vw!important;max-width:100vw!important;height:auto!important;margin:0 auto 8px!important;object-fit:contain}" +
-    ".cover-row a{display:block;width:100%}" +
-    "@media (max-width:800px){.cover-row{flex-direction:column!important}.cover-blurb{text-align:center;padding:0 12px}}" +
-    "@media (min-width:801px){header{padding-left:12px;padding-right:12px}.cover-row{padding:0 12px!important;align-items:flex-start;justify-content:center}.cover-row a{width:auto}img.cover,canvas.cover{width:auto!important;max-width:90vw!important;height:50vh!important;max-height:50vh!important}}";
-  document.head.appendChild(st);
-})();
-
-(function () {
-  function reduce() {
-    return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var img = document.querySelector("img.cover");
+  if (img) {
+    img.style.filter = "none";
+    img.style.webkitFilter = "none";
   }
-  function waterCover() {
-    var img = document.querySelector("img.cover");
-    if (!img) return;
-    img.style.position = "";
-    img.style.opacity = "";
-    img.style.pointerEvents = "";
-    img.style.width = "";
-    img.style.height = "";
-    document.querySelectorAll("canvas.cover").forEach(function (c) {
-      if (c.parentNode) c.parentNode.removeChild(c);
-    });
-    if (window.__tvWaterOn) return;
-    window.__tvWaterOn = 1;
-    if (reduce()) return;
-    if (!document.getElementById("tv-water-svg")) {
-      var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      svg.id = "tv-water-svg";
-      svg.setAttribute("width", "0");
-      svg.setAttribute("height", "0");
-      svg.setAttribute("aria-hidden", "true");
-      svg.style.cssText = "position:absolute;width:0;height:0;overflow:hidden";
-      svg.innerHTML =
-        '<filter id="tvWater" x="-12%" y="-12%" width="124%" height="124%">' +
-        '<feTurbulence type="fractalNoise" baseFrequency="0.007 0.018" numOctaves="2" seed="3" result="n">' +
-        '<animate attributeName="baseFrequency" dur="8s" repeatCount="indefinite" values="0.007 0.018;0.011 0.026;0.007 0.018"/>' +
-        "</feTurbulence>" +
-        '<feDisplacementMap in="SourceGraphic" in2="n" scale="18" xChannelSelector="R" yChannelSelector="G"/>' +
-        "</filter>";
-      document.body.appendChild(svg);
-    }
-    var st = document.getElementById("tv-water-css");
-    if (!st) {
-      st = document.createElement("style");
-      st.id = "tv-water-css";
-      document.head.appendChild(st);
-    }
-    st.textContent =
-      "img.cover{filter:url(#tvWater);-webkit-filter:url(#tvWater)}" +
-      "@media (min-width:801px){img.cover{filter:url(#tvWater);-webkit-filter:url(#tvWater)}}";
-  }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", waterCover);
-  else waterCover();
-  setTimeout(waterCover, 200);
-  setTimeout(waterCover, 800);
+  var svg = document.getElementById("tv-water-svg");
+  if (svg && svg.parentNode) svg.parentNode.removeChild(svg);
+  var css = document.getElementById("tv-water-css");
+  if (css && css.parentNode) css.parentNode.removeChild(css);
+  document.querySelectorAll("canvas.cover").forEach(function (c) {
+    if (c.parentNode) c.parentNode.removeChild(c);
+  });
 })();
