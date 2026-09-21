@@ -22,29 +22,39 @@ function loadLectureText(L){
 function fmt(sec){sec=Math.max(0,Math.floor(sec||0));return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0");}
 function loadState(){try{return JSON.parse(localStorage.getItem(STORE)||"null");}catch(e){return null;}}
 function saveState(){if(i<0||!sichtbar[i])return;localStorage.setItem(STORE,JSON.stringify({file:sichtbar[i].file,time:a.currentTime||0}));updateResume();}
-let i=-1,resumeTo=0,sichtbar=LESUNGEN.slice();
+let i=-1,resumeTo=0,sichtbar=LESUNGEN.slice(),started=false;
 window.__tvModal=false;
 window.__tvGuardUntil=0;
 function modalOpen(){
   return window.__tvModal || Date.now()<window.__tvGuardUntil ||
     !!(document.querySelector(".overlay.on"));
 }
-function trapOverlay(el){
-  if(!el||el.__tvTrap) return;
-  el.__tvTrap=1;
-  ["pointerdown","pointerup","touchstart","touchend","mousedown","click"].forEach(function(ev){
-    el.addEventListener(ev,function(e){
-      if(e.target===el) e.stopPropagation();
-    },true);
-  });
-}
-trapOverlay(document.getElementById("dlg"));
-trapOverlay(document.getElementById("fbDlg"));
 const a=document.getElementById("a");
 function holdPitch(){a.preservesPitch=true;a.webkitPreservesPitch=true;a.mozPreservesPitch=true;}
 function setSpeed(v){const r=parseFloat(v);a.playbackRate=isFinite(r)&&r>0?r:1;try{holdPitch();}catch(e){}}
 try{holdPitch();}catch(e){}
-a.addEventListener("play",function(){const sel=document.getElementById("speed");if(sel)setSpeed(sel.value);});
+function canSkip(){
+  if(modalOpen()) return false;
+  if(!a.getAttribute("src")) return false;
+  if(!started) return false;
+  if(a.readyState<1) return false;
+  const dur=a.duration;
+  if(!(isFinite(dur)&&dur>1) && !(a.currentTime>0.2)) return false;
+  return true;
+}
+function syncSkipBtns(){
+  const on=canSkip();
+  ["btnSkipBack","btnSkipFwd"].forEach(function(id){
+    const b=document.getElementById(id);
+    if(b) b.disabled=!on;
+  });
+}
+function syncPlayBtn(){
+  const b=document.getElementById("btnPlay");
+  if(b) b.textContent=a.paused?"Play":"Pause";
+  syncSkipBtns();
+}
+a.addEventListener("play",function(){ started=true; const sel=document.getElementById("speed"); if(sel)setSpeed(sel.value); syncPlayBtn(); });
 function filterList(){const q=document.getElementById("q").value.trim().toLowerCase();sichtbar=LESUNGEN.filter(function(L){if(!q)return true;return (L.titel+" "+L.file+" "+(L.tags||[]).join(" ")).toLowerCase().indexOf(q)!==-1;});if(i>=sichtbar.length)i=sichtbar.length?0:-1;zeichne();}
 function labelOf(L){return (L.nr?"#"+L.nr+"  ":"")+L.titel;}
 function zeichne(){
@@ -59,39 +69,50 @@ function zeichne(){
     box.appendChild(d);
   });
 }
-function pickLecture(e){
-  if(modalOpen()) return;
-  const box=document.getElementById("list");
-  if(!box) return;
-  const d=e.target.closest(".item");
-  if(!d||!box.contains(d)) return;
-  const idx=parseInt(d.getAttribute("data-idx"),10);
-  if(!isFinite(idx)) return;
-  e.preventDefault();
-  e.stopPropagation();
-  play(idx,0);
-}
 (function bindList(){
   const box=document.getElementById("list");
   if(!box||box.__tvClick) return;
   box.__tvClick=1;
-  let lock=0;
-  function go(e){
+  let sx=0,sy=0,moved=false;
+  box.addEventListener("pointerdown",function(e){
+    const t=e.touches?e.touches[0]:e;
+    sx=t.clientX; sy=t.clientY; moved=false;
+  },{passive:true});
+  box.addEventListener("pointermove",function(e){
+    const t=e.touches?e.touches[0]:e;
+    if(Math.abs(t.clientX-sx)>12 || Math.abs(t.clientY-sy)>12) moved=true;
+  },{passive:true});
+  box.addEventListener("click",function(e){
     if(modalOpen()) return;
-    const now=Date.now();
-    if(now-lock<300) return;
-    if(!e.target.closest(".item")) return;
-    lock=now;
-    pickLecture(e);
-  }
-  box.addEventListener("pointerdown",go);
-  box.addEventListener("mousedown",go);
-  box.addEventListener("click",go);
+    if(moved){ moved=false; return; }
+    const d=e.target.closest(".item");
+    if(!d||!box.contains(d)) return;
+    const idx=parseInt(d.getAttribute("data-idx"),10);
+    if(!isFinite(idx)) return;
+    play(idx,0);
+  });
 })();
 function updateResume(){const st=loadState();const btn=document.getElementById("btnResume");if(!st||!st.file){btn.disabled=true;btn.textContent="Weiterhören";return;}const L=LESUNGEN.find(function(x){return x.file===st.file;});btn.disabled=false;btn.textContent="Weiterhören · "+(L?labelOf(L):"Datei")+" ("+fmt(st.time)+")";}
 function play(idx,startAt){
   if(modalOpen() && !window.__tvAllowPlay) return;
-  if(!sichtbar.length)return;i=Math.max(0,Math.min(idx,sichtbar.length-1));const L=sichtbar[i];resumeTo=startAt||0;document.getElementById("now").textContent=labelOf(L);document.getElementById("nr").value=L.nr||"";document.getElementById("err").textContent="";zeichne();a.muted=false;a.volume=1;a.src=mediaUrl(L.file);function tryPlay(){const p=a.play();if(p&&p.catch)p.catch(function(){document.getElementById("err").textContent="Kein Ton — Play im Balken oder im grauen Regler tippen.";});}if(a.readyState>=3) tryPlay();else a.addEventListener("canplay",tryPlay,{once:true});a.load();
+  if(!sichtbar.length)return;
+  i=Math.max(0,Math.min(idx,sichtbar.length-1));
+  const L=sichtbar[i];
+  resumeTo=startAt||0;
+  started=false;
+  syncSkipBtns();
+  document.getElementById("now").textContent=labelOf(L);
+  document.getElementById("nr").value=L.nr||"";
+  document.getElementById("err").textContent="";
+  zeichne();
+  a.muted=false; a.volume=1; a.src=mediaUrl(L.file);
+  function tryPlay(){
+    const p=a.play();
+    if(p&&p.catch)p.catch(function(){document.getElementById("err").textContent="Kein Ton — Play im Balken oder die goldene Play-Taste tippen.";});
+  }
+  if(a.readyState>=3) tryPlay();
+  else a.addEventListener("canplay",tryPlay,{once:true});
+  a.load();
 }
 window.play=play;
 function playNr(){const n=parseInt(document.getElementById("nr").value,10);const idx=sichtbar.findIndex(function(L){return L.nr===n;});if(idx<0){document.getElementById("err").textContent="Keine Lesung für #"+n;return;}play(idx,0);}
@@ -114,36 +135,28 @@ function applySeek(dest){
   }
 }
 function skip(sec){
-  if(modalOpen()) return;
-  if(!a.getAttribute("src")){
-    if(loadState()) resumeNow();
-    return;
-  }
+  if(!canSkip()) return;
   const dest=skipTarget(sec);
   const wasPlaying=!a.paused;
-  try{ if(!a.paused) a.pause(); }catch(e){}
   applySeek(dest);
   function resumePlay(){
     if(!wasPlaying) return;
     const p=a.play();
     if(p&&p.catch) p.catch(function(){});
   }
-  function onSeeked(){
+  a.addEventListener("seeked",function onSeeked(){
     a.removeEventListener("seeked",onSeeked);
     resumePlay();
-  }
-  a.addEventListener("seeked",onSeeked);
+  });
   setTimeout(function(){
     if(Math.abs((a.currentTime||0)-dest)>1.5) applySeek(dest);
     resumePlay();
-    a.removeEventListener("seeked",onSeeked);
     saveState();
   },180);
 }
 window.skip=skip;
 function prev(){if(modalOpen())return;play(i<0?0:i-1,0);} function next(){if(modalOpen())return;play(i<0?0:i+1,0);}
 function toggle(){if(modalOpen())return;if(!a.getAttribute("src")){if(loadState())resumeNow();else play(0,0);return;}if(a.paused)a.play();else a.pause();}
-function syncPlayBtn(){const b=document.getElementById("btnPlay");if(b)b.textContent=a.paused?"Play":"Pause";}
 function placeOverlay(){const d=document.getElementById("dlg");if(d){d.style.top="0px";d.style.left="0px";d.style.right="0px";d.style.bottom="0px";}}
 function showSum(){
   const L=(i>=0?sichtbar[i]:null)||sichtbar[0];if(!L)return;
@@ -159,7 +172,7 @@ function showSum(){
 }
 function hideSum(){
   window.__tvModal=false;
-  window.__tvGuardUntil=Date.now()+450;
+  window.__tvGuardUntil=Date.now()+350;
   const dlg=document.getElementById("dlg");
   if(dlg) dlg.classList.remove("on");
 }
@@ -180,32 +193,34 @@ window.showSum=showSum;
     }
   });
 })();
-a.addEventListener("loadedmetadata",function(){if(resumeTo>0&&isFinite(a.duration)){a.currentTime=Math.min(resumeTo,Math.max(0,a.duration-1));resumeTo=0;}});
-a.addEventListener("timeupdate",function(){if(!a.paused)saveState();});
-a.addEventListener("play",function(){syncPlayBtn();});
+a.addEventListener("loadedmetadata",function(){
+  if(resumeTo>0&&isFinite(a.duration)){
+    a.currentTime=Math.min(resumeTo,Math.max(0,a.duration-1));
+    resumeTo=0;
+  }
+  syncSkipBtns();
+});
+a.addEventListener("canplay",syncSkipBtns);
+a.addEventListener("timeupdate",function(){if(!a.paused)saveState(); syncSkipBtns();});
 a.addEventListener("pause",function(){saveState();syncPlayBtn();});
-a.addEventListener("ended",function(){saveState();next();});
-a.addEventListener("error",function(){document.getElementById("err").textContent="Diese Datei startet nicht."});
-let skipLock=0;
-function skipTap(sec){
-  if(modalOpen()) return;
-  const now=Date.now();
-  if(now-skipLock<250) return;
-  skipLock=now;
-  skip(sec);
-}
+a.addEventListener("ended",function(){saveState();started=false;syncSkipBtns();next();});
+a.addEventListener("error",function(){started=false;syncSkipBtns();document.getElementById("err").textContent="Diese Datei startet nicht.";});
 function bindSkip(id,sec){
   const el=document.getElementById(id);
   if(!el) return;
-  el.addEventListener("click",function(e){ e.preventDefault(); skipTap(sec); });
-  el.addEventListener("pointerup",function(e){ e.preventDefault(); skipTap(sec); });
+  el.addEventListener("click",function(e){
+    e.preventDefault();
+    if(!canSkip()) return;
+    skip(sec);
+  });
 }
 bindSkip("btnSkipBack",-10);
 bindSkip("btnSkipFwd",10);
+syncSkipBtns();
 try{
   if(navigator.mediaSession){
-    navigator.mediaSession.setActionHandler("seekbackward",function(){ skip(-10); });
-    navigator.mediaSession.setActionHandler("seekforward",function(){ skip(10); });
+    navigator.mediaSession.setActionHandler("seekbackward",function(){ if(canSkip()) skip(-10); });
+    navigator.mediaSession.setActionHandler("seekforward",function(){ if(canSkip()) skip(10); });
   }
 }catch(e){}
 function mergeEntries(arr){
@@ -234,6 +249,6 @@ function loadExtraCatalog(){
     }).catch(function(){});
   });
 }
-zeichne();updateResume();
+zeichne();updateResume();syncSkipBtns();
 loadExtraCatalog();
 if(!LESUNGEN.length) document.getElementById("err").textContent="Katalog lesungen.js fehlt.";
