@@ -24,18 +24,14 @@
     }
   }
 
-  function box() {
-    var el = document.getElementById("tv-live");
-    if (el) return el;
-    var st = document.createElement("style");
-    st.textContent =
-      "#tv-live{font-size:.68rem;color:#cbb89a;line-height:1.35;text-align:right;padding:0 12px 8px}";
-    document.head.appendChild(st);
-    el = document.createElement("div");
-    el.id = "tv-live";
-    var foot = document.querySelector("footer.fb") || document.body;
-    foot.appendChild(el);
-    return el;
+  function clearOldLive() {
+    var old = document.getElementById("tv-live");
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+  }
+
+  function slot() {
+    clearOldLive();
+    return document.getElementById("tv-live-slot");
   }
 
   function prune() {
@@ -65,21 +61,28 @@
       .slice(0, 10);
   }
 
-  function draw() {
+  function paint() {
+    var el = slot();
+    if (!el) return;
     var rows = top10();
-    var el = box();
     if (!rows.length) {
       el.textContent = "";
       return;
     }
     el.textContent =
-      "aktiv in: " +
+      " · aktiv in: " +
       rows
         .map(function (r) {
           return r.name + (r.n > 1 ? " ×" + r.n : "");
         })
         .join(" · ");
   }
+
+  function draw() {
+    paint();
+  }
+
+  window.__tvLivePaint = paint;
 
   function applyPeer(id, raw) {
     if (!id) return;
@@ -140,7 +143,8 @@
       cb();
     };
     s.onerror = function () {
-      box().textContent = "";
+      var el = slot();
+      if (el) el.textContent = "";
     };
     document.head.appendChild(s);
   }

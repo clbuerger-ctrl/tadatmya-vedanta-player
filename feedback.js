@@ -127,9 +127,10 @@ function drawStats(){
   html+="<br>Hörzeit: heute "+fmtMinOnly(TVS.dmin)+", Monat "+fmtHours(TVS.mmin)+" = gesamt "+fmtMHD(TVS.tmin);
   if(TVS.oday!=null){
     html+="<br>Orte: heute "+TVS.oday+", Monat "+TVS.omon+" = gesamt "+TVS.otot;
-    if(TVS.place) html+=" · hier: "+TVS.place;
+    html+='<span id="tv-live-slot"></span>';
   }
   box.innerHTML=html;
+  if(typeof window.__tvLivePaint==="function") try{ window.__tvLivePaint(); }catch(e){}
 }
 function hookListenTime(){
   const a=document.getElementById("a");
