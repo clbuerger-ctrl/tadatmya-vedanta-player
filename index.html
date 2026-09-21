@@ -1,1 +1,133 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tadatmya Vedanta Player V1.51</title>
+<style>
+:root{--bg:#1a1410;--gold:#c9a36a;--text:#f3e6d0;--muted:#b7a48c;--card:#2a211b}
+*{box-sizing:border-box}
+body{margin:0;font-family:Georgia,serif;background:var(--bg);color:var(--text)}
+header{padding:12px 16px 8px;text-align:center}
+.cover-gap{display:block;height:1.6rem;width:100%;clear:both}
+.cover-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;justify-content:center;margin-top:1.6rem;clear:both}
+.cover{display:block;width:100%;max-width:100%;height:auto;margin:0 auto 8px;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.45);object-fit:contain}
+@media (min-width:801px){.cover{width:auto;height:50vh;max-height:50vh;max-width:90vw}}
+h1{margin:0 auto;max-width:46rem;font-size:2rem;font-weight:normal;color:var(--gold);text-align:center;line-height:1.2}
+@media (min-width:801px){h1{font-size:2.35rem}}
+h2{margin:10px auto 0;max-width:40rem;font-size:1rem;font-weight:normal;line-height:1.45;text-align:center}h2 a{color:var(--gold)}
+.meta{color:var(--muted);font-size:.85rem;margin:8px auto 0;text-align:center}
+.cover-rule{border:0;border-top:1px solid #3d2f26;width:min(92%,40rem);margin:14px auto 0;opacity:.9}
+#playerBar{position:sticky;top:0;z-index:30;background:var(--bg);padding-bottom:4px;border-bottom:1px solid #3d2f26}
+.now{padding:4px 12px;min-height:1.2em}
+audio{width:calc(100% - 24px);margin:4px 12px;height:36px}
+.row{display:flex;gap:6px;padding:4px 12px;align-items:center;flex-wrap:wrap}
+.transport{display:flex;gap:8px;padding:6px 12px}
+.transport button{flex:1;min-height:44px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+input,button{font-size:.85rem;min-height:28px;border-radius:7px}
+input[type=number],input[type=search]{padding:4px 8px;border:1px solid #5a4634;background:#3a2e26;color:var(--text)}
+input[type=number]{width:56px}
+input[type=search]{flex:1;min-width:140px}
+button{background:#4a372b;color:var(--text);border:1px solid #6b5340;padding:4px 9px}
+button.gold{background:#8b6914;border-color:#c9a36a}
+button:disabled{opacity:.45}
+.list{margin:8px 12px 24px;border:1px solid #5a4634;border-radius:10px;position:relative;z-index:5;touch-action:pan-y}
+button.item{display:block;width:100%;margin:0;text-align:left;background:transparent;color:inherit;font:inherit;border:none;border-bottom:1px solid #3d2f26;border-radius:0;min-height:0;padding:8px 12px;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:pan-y}
+button.item:hover{background:#3a2e26}
+button.item.active{background:#4a372b;color:var(--gold)}
+.tags{color:var(--muted);font-size:.74rem;margin-top:2px;pointer-events:none}
+.err{color:#e8a0a0;padding:0 12px;font-size:.8rem;min-height:.9em}
+.overlay{display:none;pointer-events:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9999;padding:8px 12px calc(12px + env(safe-area-inset-bottom,0px));align-items:stretch}
+.overlay.on{display:flex;pointer-events:auto}
+.panel{background:var(--card);border:1px solid #6b5340;border-radius:12px;max-width:40rem;width:100%;margin:auto;display:flex;flex-direction:column;max-height:calc(100dvh - 16px);max-height:calc(100vh - 16px);pointer-events:auto}
+.dlghead{padding:10px 12px 8px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0}
+.panel h3{margin:0;color:var(--gold);font-weight:normal;font-size:1rem}
+.dlgbody{overflow:auto;white-space:pre-wrap;line-height:1.4;flex:1;padding:0 12px 8px;-webkit-overflow-scrolling:touch}
+.dlgfoot{padding:8px 12px 12px;flex-shrink:0}
+#btnCloseSum,.btnCloseTop{min-height:44px;padding:8px 14px;flex:0 0 auto}
+#btnCloseSum{width:100%}
+.fb{text-align:center;padding:16px 12px 28px;border-top:1px solid #3d2f26;margin-top:8px}
+.fb-link{color:var(--gold);cursor:pointer;font-size:.95rem;background:none;border:none;padding:0;min-height:auto}
+#fbDlg input,#fbDlg textarea{width:100%;padding:8px;border:1px solid #5a4634;background:#3a2e26;color:var(--text);border-radius:7px;font-family:Georgia,serif}
+#fbDlg textarea{min-height:90px;resize:vertical}
+#fbDlg label{display:block;margin:8px 0 4px;color:var(--gold);font-size:.85rem}
+.fb-item{border-top:1px solid #3d2f26;padding:8px 0;margin-top:8px;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<header>
+  <h1>Tadatmya Vedanta Player V1.51</h1>
+  <h2>Sammlung der veröffentlichten Sonntags-Vorträge von Rishi Sahadev (<a href="https://t.me/+7qSv0wH6VkE0Njky" target="_blank" rel="noopener">Telegram</a>) und eine Auswahl verschiedener Satsangs von Swami Revatikaanta und Pandit Mayuran zu diesem wichtigen Thema</h2>
+  <div class="meta" id="zeitraum">Zeitraum: 13.12.2025 – 20.09.2026</div>
+  <div class="cover-gap" aria-hidden="true"></div>
+  <img class="cover" src="cover.jpg" alt="Tadatmya Vedanta">
+</header>
+<div id="playerBar">
+  <div class="now" id="now"></div>
+  <audio id="a" controls preload="none" playsinline webkit-playsinline controlsList="nodownload"></audio>
+  <div class="transport">
+    <button type="button" onclick="prev()">&#9664; Zurück</button>
+    <button type="button" id="btnSkipBack" disabled>-10s</button>
+    <button type="button" class="gold" id="btnPlay" onclick="toggle()">Play</button>
+    <button type="button" id="btnSkipFwd" disabled>+10s</button>
+    <button type="button" onclick="next()">Vor &#9654;</button>
+  </div>
+  <div class="row"><input id="q" type="search" placeholder="Suche #Hashtag oder Wort" oninput="filterList()"></div>
+  <div class="row">
+    <label>#</label>
+    <input id="nr" type="number" min="1" max="99" inputmode="numeric" placeholder="23">
+    <button class="gold" type="button" onclick="playNr()">Play</button>
+    <button class="gold" type="button" id="btnResume" onclick="resumeNow()">Weiterhören</button>
+    <button type="button" onclick="showSum()">Text</button>
+  </div>
+  <div class="row">
+    <label style="font-size:.82rem;color:var(--muted);">Tempo
+      <select id="speed" onchange="setSpeed(this.value)" style="min-height:28px;background:#3a2e26;color:var(--text);border:1px solid #5a4634;border-radius:7px;">
+        <option value="0.25">0.25</option><option value="0.5">0.5</option>
+        <option value="0.75">0.75</option><option value="1" selected>1</option>
+        <option value="1.25">1.25</option><option value="1.5">1.5</option>
+        <option value="1.75">1.75</option><option value="2">2</option>
+      </select>
+    </label>
+  </div>
+  <div class="err" id="err"></div>
+</div>
+<div class="list" id="list"></div>
+<div class="overlay" id="dlg">
+  <div class="panel">
+    <div class="dlghead"><h3 id="dlgT"></h3><button type="button" class="gold btnCloseTop" onclick="hideSum()">Schließen</button></div>
+    <p id="dlgTags" class="tags" style="padding:0 12px;"></p>
+    <div class="dlgbody" id="dlgB"></div>
+    <div class="dlgfoot"><button type="button" id="btnCloseSum">Schließen</button></div>
+  </div>
+</div>
+<script src="lesungen.js?t=135"></script>
+<script src="zeitraum.js?v=151"></script>
+<script src="app.js?v=151"></script>
+
+<footer class="fb">
+  <button type="button" class="fb-link" onclick="openFb()">Feedback und Anregungen →</button>
+</footer>
+<div class="overlay" id="fbDlg">
+  <div class="panel">
+    <div class="dlghead"><h3>Feedback</h3><button type="button" class="gold btnCloseTop" onclick="hideFb()">Schließen</button></div>
+    <div class="dlgbody">
+      <label for="fbName">Name</label>
+      <input id="fbName" type="text" autocomplete="name">
+      <label for="fbStadt">Stadt</label>
+      <input id="fbStadt" type="text" autocomplete="address-level2">
+      <label for="fbText">Feedback</label>
+      <textarea id="fbText" placeholder="Deine Anregung …"></textarea>
+      <p id="fbHint" class="tags" style="margin-top:10px;"></p>
+      <div id="fbList"></div>
+    </div>
+    <div class="dlgfoot" style="display:flex;gap:8px;">
+      <button type="button" class="gold" style="flex:1" onclick="sendFb()">Speichern</button>
+      <button type="button" style="flex:1" onclick="hideFb()">Schließen</button>
+    </div>
+  </div>
+</div>
+<script src="feedback.js?v=151"></script>
+<script src="live.js?v=141"></script>
+</body>
+</html>
