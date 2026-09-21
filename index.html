@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tadatmya Vedanta Player V1.28</title>
+<title>Tadatmya Vedanta Player V1.29</title>
 <style>
 :root{--bg:#1a1410;--gold:#c9a36a;--text:#f3e6d0;--muted:#b7a48c;--card:#2a211b}
 *{box-sizing:border-box}
@@ -51,7 +51,7 @@ button:disabled{opacity:.45}
 <body>
 <header>
   <img class="cover" src="cover.jpg" alt="Tadatmya Vedanta">
-  <h1>Tadatmya Vedanta Player V1.28</h1>
+  <h1>Tadatmya Vedanta Player V1.29</h1>
   <h2>Sammlung der veröffentlichten Sonntags-Vorträge von Rishi Sahadev (<a href="https://t.me/+7qSv0wH6VkE0Njky" target="_blank" rel="noopener">Telegram</a>) und eine Auswahl verschiedener Satsangs von Swami Revatikanta und Pandit Mayuran zu diesem wichtigen Thema</h2>
   <div class="meta">Zeitraum: 13.12.2025 – 18.09.2026</div>
 </header>
@@ -92,7 +92,7 @@ button:disabled{opacity:.45}
     <div class="dlgfoot"><button type="button" id="btnCloseSum">Schließen</button></div>
   </div>
 </div>
-<script src="lesungen.js?v=2"></script>
+<script>document.write("<script src=\"lesungen.js?t="+Date.now()+"\"><\\/script>");</script>
 <script>
 const FOLDER="https://www.dropbox.com/scl/fo/m10ycst2zjp72cwygc1fo/ALB3AGy0uKvmitTOetYJB4U";
 const RLKEY="ubqr97xi75q2xr6d3jhf4hcyf";
@@ -145,7 +145,34 @@ a.addEventListener("play",function(){syncPlayBtn();});
 a.addEventListener("pause",function(){saveState();syncPlayBtn();});
 a.addEventListener("ended",function(){saveState();next();});
 a.addEventListener("error",function(){document.getElementById("err").textContent="Diese Datei startet nicht."});
+function mergeEntries(arr){
+  if(!Array.isArray(arr)) return 0;
+  let n=0;
+  arr.forEach(function(E){
+    if(!E) return;
+    const file=E.file||E.name||E.filename;
+    if(!file) return;
+    if(LESUNGEN.some(function(L){return L.file===file;})) return;
+    let nr=E.nr||null;
+    const m=String(file+" "+(E.titel||"")).match(/#(\d+)/);
+    if(!nr && m) nr=parseInt(m[1],10);
+    LESUNGEN.push({nr:nr,titel:E.titel||E.title||file.replace(/\.mp3$/i,""),file:file,tags:E.tags||[],sum:E.sum||""});
+    n++;
+  });
+  if(n){ sichtbar=LESUNGEN.slice(); filterList(); updateResume(); }
+  return n;
+}
+function loadExtraCatalog(){
+  fetch(mediaUrl("katalog.json"),{cache:"no-store"}).then(function(r){return r.ok?r.json():Promise.reject();}).then(mergeEntries).catch(function(){
+    fetch(mediaUrl("katalog.txt"),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){
+      if(!t) return;
+      const files=t.split(/\r?\n/).map(function(l){return l.trim();}).filter(function(l){return l&&l.charAt(0)!=="#"&&/\.mp3$/i.test(l);});
+      mergeEntries(files.map(function(f){return {file:f};}));
+    }).catch(function(){});
+  });
+}
 zeichne();updateResume();
+loadExtraCatalog();
 if(!LESUNGEN.length) document.getElementById("err").textContent="Katalog lesungen.js fehlt.";
 </script>
 <footer class="fb">
@@ -170,6 +197,6 @@ if(!LESUNGEN.length) document.getElementById("err").textContent="Katalog lesunge
     </div>
   </div>
 </div>
-<script src="feedback.js?v=1.28"></script>
+<script src="feedback.js?v=1.29"></script>
 </body>
 </html>
