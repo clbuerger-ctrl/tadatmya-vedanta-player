@@ -2,6 +2,7 @@ const FOLDER="https://www.dropbox.com/scl/fo/m10ycst2zjp72cwygc1fo/ALB3AGy0uKvmi
 const RLKEY="ubqr97xi75q2xr6d3jhf4hcyf";
 const STORE="tv-player-resume-v1";
 const POS_STORE="tv-player-positions-v2";
+const DONE_STORE="tv-player-done-v1";
 const TEXT_BASE="texte/";
 const LESUNGEN=(window.LESUNGEN||[]).map(function(L){ L.sum=L.sum||""; return L; });
 function mediaUrl(name){return FOLDER+"?rlkey="+encodeURIComponent(RLKEY)+"&preview="+encodeURIComponent(name)+"&raw=1";}
@@ -41,6 +42,26 @@ function clearPos(file){
   delete m[file];
   localStorage.setItem(POS_STORE,JSON.stringify(m));
 }
+function loadDone(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(DONE_STORE)||"{}");
+    if(raw && typeof raw==="object" && !Array.isArray(raw)) return raw;
+  }catch(e){}
+  return {};
+}
+function isDone(file){
+  if(!file) return false;
+  const m=loadDone();
+  return !!m[file];
+}
+function markDone(file){
+  if(!file) return;
+  const m=loadDone();
+  m[file]={ts:Date.now()};
+  localStorage.setItem(DONE_STORE,JSON.stringify(m));
+  clearPos(file);
+}
+
 function fmtZeitraum(from,to){
   if(!from && !to) return "";
   if(from && to && from!==to) return "Zeitraum: "+from+" – "+to;
@@ -90,10 +111,11 @@ function saveState(){
   const file=sichtbar[i].file;
   const time=a.currentTime||0;
   const dur=a.duration;
-  // near end → treat as finished, clear resume for this talk
+  // near end → finished: keep checkmark, drop resume position
   if(isFinite(dur)&&dur>30 && time>=dur*0.97){
-    clearPos(file);
+    markDone(file);
     localStorage.setItem(STORE,JSON.stringify({file:file,time:0}));
+    zeichne();
   } else {
     setPos(file,time);
     localStorage.setItem(STORE,JSON.stringify({file:file,time:time}));
@@ -143,9 +165,12 @@ function zeichne(){
     d.type="button";
     d.className="item"+(idx===i?" active":"");
     d.setAttribute("data-idx",String(idx));
+    const done=isDone(L.file);
     const pos=getPos(L.file);
-    const hint=pos>3?(" · weiter bei "+fmt(pos)):"";
-    d.innerHTML=labelOf(L)+hint+"<div class='tags'>"+(L.tags||[]).join(" ")+"</div>";
+    let mark="";
+    if(done) mark+=" <span class=\"done\" title=\"angehört\">✓</span>";
+    if(pos>3) mark+=" · weiter bei "+fmt(pos);
+    d.innerHTML=labelOf(L)+mark+"<div class='tags'>"+(L.tags||[]).join(" ")+"</div>";
     box.appendChild(d);
   });
 }
@@ -288,9 +313,9 @@ a.addEventListener("canplay",syncSkipBtns);
 a.addEventListener("timeupdate",function(){if(!a.paused)saveState(); syncSkipBtns();});
 a.addEventListener("pause",function(){saveState();syncPlayBtn();});
 a.addEventListener("ended",function(){
-  if(i>=0&&sichtbar[i]) clearPos(sichtbar[i].file);
+  if(i>=0&&sichtbar[i]) markDone(sichtbar[i].file);
   localStorage.setItem(STORE,JSON.stringify({file:sichtbar[i]?sichtbar[i].file:"",time:0}));
-  started=false;syncSkipBtns();updateResume();next();
+  started=false;syncSkipBtns();updateResume();zeichne();next();
 });
 a.addEventListener("error",function(){started=false;syncSkipBtns();document.getElementById("err").textContent="Diese Datei startet nicht.";});
 function bindSkip(id,sec){
