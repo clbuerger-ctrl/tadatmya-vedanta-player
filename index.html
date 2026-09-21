@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tadatmya Vedanta Player V1.42</title>
+<title>Tadatmya Vedanta Player V1.43</title>
 <style>
 :root{--bg:#1a1410;--gold:#c9a36a;--text:#f3e6d0;--muted:#b7a48c;--card:#2a211b}
 *{box-sizing:border-box}
@@ -22,7 +22,7 @@ h2{margin:10px auto 0;max-width:40rem;font-size:1rem;font-weight:normal;line-hei
 audio{width:calc(100% - 24px);margin:4px 12px;height:36px}
 .row{display:flex;gap:6px;padding:4px 12px;align-items:center;flex-wrap:wrap}
 .transport{display:flex;gap:8px;padding:6px 12px}
-.transport button{flex:1;min-height:40px}
+.transport button{flex:1;min-height:44px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 input,button{font-size:.85rem;min-height:28px;border-radius:7px}
 input[type=number],input[type=search]{padding:4px 8px;border:1px solid #5a4634;background:#3a2e26;color:var(--text)}
 input[type=number]{width:56px}
@@ -54,7 +54,7 @@ button:disabled{opacity:.45}
 </head>
 <body>
 <header>
-  <h1>Tadatmya Vedanta Player V1.42</h1>
+  <h1>Tadatmya Vedanta Player V1.43</h1>
   <h2>Sammlung der veröffentlichten Sonntags-Vorträge von Rishi Sahadev (<a href="https://t.me/+7qSv0wH6VkE0Njky" target="_blank" rel="noopener">Telegram</a>) und eine Auswahl verschiedener Satsangs von Swami Revatikaanta und Pandit Mayuran zu diesem wichtigen Thema</h2>
   <div class="meta">Zeitraum: 13.12.2025 – 18.09.2026</div>
   <div class="cover-gap" aria-hidden="true"></div>
@@ -65,9 +65,9 @@ button:disabled{opacity:.45}
   <audio id="a" controls preload="none" playsinline webkit-playsinline controlsList="nodownload"></audio>
   <div class="transport">
     <button type="button" onclick="prev()">&#9664; Zurück</button>
-    <button type="button" onclick="skip(-10)">-10s</button>
+    <button type="button" id="btnSkipBack">-10s</button>
     <button type="button" class="gold" id="btnPlay" onclick="toggle()">Play</button>
-    <button type="button" onclick="skip(10)">+10s</button>
+    <button type="button" id="btnSkipFwd">+10s</button>
     <button type="button" onclick="next()">Vor &#9654;</button>
   </div>
   <div class="row"><input id="q" type="search" placeholder="Suche #Hashtag oder Wort" oninput="filterList()"></div>
@@ -100,7 +100,7 @@ button:disabled{opacity:.45}
   </div>
 </div>
 <script src="lesungen.js?t=135"></script>
-<script src="app.js?v=135"></script>
+<script src="app.js?v=143"></script>
 
 <footer class="fb">
   <button type="button" class="fb-link" onclick="openFb()">Feedback und Anregungen →</button>
