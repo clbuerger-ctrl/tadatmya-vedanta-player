@@ -9,7 +9,8 @@ function fixLecture2b(){
     const t=L.titel||"";
     if(f.indexOf("Vertiefung #2.mp3")!==-1 || t.indexOf("#2b")!==-1 || f.indexOf("Vortrag #2b")!==-1){
       L.file=FILE_2B;
-      L.titel="Vortrag #2b — Vertiefung";
+      if(!L.titel || L.titel.indexOf("Kap.")===0) L.titel="Vortrag #2b Vertiefung";
+      if(!L.kap) L.kap="Kap. 1.2, 1.3, 1.4";
     }
   });
   if(typeof zeichne==="function"){
@@ -18,6 +19,27 @@ function fixLecture2b(){
 }
 fixLecture2b();
 setTimeout(fixLecture2b, 50);
+function ensureKapSubtitle(){
+  if(window.__tvKapOn || typeof zeichne!=="function") return;
+  window.__tvKapOn=1;
+  const orig=zeichne;
+  window.zeichne=function(){
+    orig();
+    const box=document.getElementById("list");
+    if(!box) return;
+    const items=box.querySelectorAll(".item");
+    const src=(typeof sichtbar!=="undefined" && sichtbar) || window.LESUNGEN || [];
+    items.forEach(function(d,idx){
+      const L=src[idx];
+      if(!L||!L.kap) return;
+      let tags=d.querySelector(".tags");
+      if(!tags){ tags=document.createElement("div"); tags.className="tags"; d.appendChild(tags); }
+      if(tags.textContent.indexOf(L.kap)!==-1) return;
+      tags.appendChild(document.createTextNode((tags.textContent?" · ":"")+L.kap));
+    });
+  };
+  try{ zeichne(); }catch(e){}
+}
 function ensureTwoCol(){
   let st=document.getElementById("tv-twocol");
   if(!st){ st=document.createElement("style"); st.id="tv-twocol"; document.head.appendChild(st); }
@@ -403,6 +425,7 @@ document.addEventListener("DOMContentLoaded",function(){
   ensureTextDlgFix();
   ensureStats();
   ensureAutoStart();
+  ensureKapSubtitle();
   fixLecture2b();
 });
 ensureCredit();
@@ -412,3 +435,4 @@ ensureCoverLink();
 ensureCoverBlurb();
 ensureTextDlgFix();
 ensureAutoStart();
+ensureKapSubtitle();
