@@ -33,7 +33,9 @@ function trapOverlay(el){
   if(!el||el.__tvTrap) return;
   el.__tvTrap=1;
   ["pointerdown","pointerup","touchstart","touchend","mousedown","click"].forEach(function(ev){
-    el.addEventListener(ev,function(e){ e.stopPropagation(); },true);
+    el.addEventListener(ev,function(e){
+      if(e.target===el) e.stopPropagation();
+    },true);
   });
 }
 trapOverlay(document.getElementById("dlg"));
@@ -150,18 +152,34 @@ function showSum(){
   document.getElementById("dlgTags").textContent=(L.tags||[]).join(" ");
   document.getElementById("dlgB").textContent="Text wird geladen …";
   placeOverlay();
-  document.getElementById("dlg").classList.add("on");
+  const dlg=document.getElementById("dlg");
+  dlg.classList.add("on");
+  dlg.querySelectorAll(".xclose").forEach(function(b){ b.remove(); });
   loadLectureText(L).then(function(t){document.getElementById("dlgB").textContent=t||L.sum||"Kein Text gefunden.";});
 }
 function hideSum(){
   window.__tvModal=false;
   window.__tvGuardUntil=Date.now()+450;
-  document.getElementById("dlg").classList.remove("on");
+  const dlg=document.getElementById("dlg");
+  if(dlg) dlg.classList.remove("on");
 }
 window.hideSum=hideSum;
 window.showSum=showSum;
-document.getElementById("btnCloseSum").onclick=function(e){ if(e){e.preventDefault();e.stopPropagation();} hideSum(); };
-document.getElementById("dlg").onclick=function(e){if(e.target===this)hideSum();};
+(function bindTextClose(){
+  const dlg=document.getElementById("dlg");
+  if(!dlg||dlg.__tvClose) return;
+  dlg.__tvClose=1;
+  dlg.addEventListener("click",function(e){
+    if(e.target===dlg){ hideSum(); return; }
+    if(e.target.closest("#btnCloseSum, .btnCloseTop, .xclose")) hideSum();
+  });
+  document.addEventListener("keydown",function(e){
+    if(e.key==="Escape" || e.key==="Esc"){
+      hideSum();
+      if(typeof hideFb==="function") hideFb();
+    }
+  });
+})();
 a.addEventListener("loadedmetadata",function(){if(resumeTo>0&&isFinite(a.duration)){a.currentTime=Math.min(resumeTo,Math.max(0,a.duration-1));resumeTo=0;}});
 a.addEventListener("timeupdate",function(){if(!a.paused)saveState();});
 a.addEventListener("play",function(){syncPlayBtn();});
