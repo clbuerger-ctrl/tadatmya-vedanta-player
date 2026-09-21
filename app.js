@@ -23,6 +23,21 @@ function fmt(sec){sec=Math.max(0,Math.floor(sec||0));return Math.floor(sec/60)+"
 function loadState(){try{return JSON.parse(localStorage.getItem(STORE)||"null");}catch(e){return null;}}
 function saveState(){if(i<0||!sichtbar[i])return;localStorage.setItem(STORE,JSON.stringify({file:sichtbar[i].file,time:a.currentTime||0}));updateResume();}
 let i=-1,resumeTo=0,sichtbar=LESUNGEN.slice();
+window.__tvModal=false;
+window.__tvGuardUntil=0;
+function modalOpen(){
+  return window.__tvModal || Date.now()<window.__tvGuardUntil ||
+    !!(document.querySelector(".overlay.on"));
+}
+function trapOverlay(el){
+  if(!el||el.__tvTrap) return;
+  el.__tvTrap=1;
+  ["pointerdown","pointerup","touchstart","touchend","mousedown","click"].forEach(function(ev){
+    el.addEventListener(ev,function(e){ e.stopPropagation(); },true);
+  });
+}
+trapOverlay(document.getElementById("dlg"));
+trapOverlay(document.getElementById("fbDlg"));
 const a=document.getElementById("a");
 function holdPitch(){a.preservesPitch=true;a.webkitPreservesPitch=true;a.mozPreservesPitch=true;}
 function setSpeed(v){const r=parseFloat(v);a.playbackRate=isFinite(r)&&r>0?r:1;try{holdPitch();}catch(e){}}
@@ -43,6 +58,7 @@ function zeichne(){
   });
 }
 function pickLecture(e){
+  if(modalOpen()) return;
   const box=document.getElementById("list");
   if(!box) return;
   const d=e.target.closest(".item");
@@ -59,6 +75,7 @@ function pickLecture(e){
   box.__tvClick=1;
   let lock=0;
   function go(e){
+    if(modalOpen()) return;
     const now=Date.now();
     if(now-lock<300) return;
     if(!e.target.closest(".item")) return;
@@ -70,7 +87,10 @@ function pickLecture(e){
   box.addEventListener("click",go);
 })();
 function updateResume(){const st=loadState();const btn=document.getElementById("btnResume");if(!st||!st.file){btn.disabled=true;btn.textContent="Weiterhören";return;}const L=LESUNGEN.find(function(x){return x.file===st.file;});btn.disabled=false;btn.textContent="Weiterhören · "+(L?labelOf(L):"Datei")+" ("+fmt(st.time)+")";}
-function play(idx,startAt){if(!sichtbar.length)return;i=Math.max(0,Math.min(idx,sichtbar.length-1));const L=sichtbar[i];resumeTo=startAt||0;document.getElementById("now").textContent=labelOf(L);document.getElementById("nr").value=L.nr||"";document.getElementById("err").textContent="";zeichne();a.muted=false;a.volume=1;a.src=mediaUrl(L.file);function tryPlay(){const p=a.play();if(p&&p.catch)p.catch(function(){document.getElementById("err").textContent="Kein Ton — Play im Balken oder im grauen Regler tippen.";});}if(a.readyState>=3) tryPlay();else a.addEventListener("canplay",tryPlay,{once:true});a.load();}
+function play(idx,startAt){
+  if(modalOpen() && !window.__tvAllowPlay) return;
+  if(!sichtbar.length)return;i=Math.max(0,Math.min(idx,sichtbar.length-1));const L=sichtbar[i];resumeTo=startAt||0;document.getElementById("now").textContent=labelOf(L);document.getElementById("nr").value=L.nr||"";document.getElementById("err").textContent="";zeichne();a.muted=false;a.volume=1;a.src=mediaUrl(L.file);function tryPlay(){const p=a.play();if(p&&p.catch)p.catch(function(){document.getElementById("err").textContent="Kein Ton — Play im Balken oder im grauen Regler tippen.";});}if(a.readyState>=3) tryPlay();else a.addEventListener("canplay",tryPlay,{once:true});a.load();
+}
 window.play=play;
 function playNr(){const n=parseInt(document.getElementById("nr").value,10);const idx=sichtbar.findIndex(function(L){return L.nr===n;});if(idx<0){document.getElementById("err").textContent="Keine Lesung für #"+n;return;}play(idx,0);}
 function resumeNow(){const st=loadState();if(!st)return;let idx=sichtbar.findIndex(function(L){return L.file===st.file;});if(idx<0){document.getElementById("q").value="";filterList();idx=sichtbar.findIndex(function(L){return L.file===st.file;});}if(idx<0)return;play(idx,st.time||0);}
@@ -92,6 +112,7 @@ function applySeek(dest){
   }
 }
 function skip(sec){
+  if(modalOpen()) return;
   if(!a.getAttribute("src")){
     if(loadState()) resumeNow();
     return;
@@ -118,13 +139,28 @@ function skip(sec){
   },180);
 }
 window.skip=skip;
-function prev(){play(i<0?0:i-1,0);} function next(){play(i<0?0:i+1,0);}
-function toggle(){if(!a.getAttribute("src")){if(loadState())resumeNow();else play(0,0);return;}if(a.paused)a.play();else a.pause();}
+function prev(){if(modalOpen())return;play(i<0?0:i-1,0);} function next(){if(modalOpen())return;play(i<0?0:i+1,0);}
+function toggle(){if(modalOpen())return;if(!a.getAttribute("src")){if(loadState())resumeNow();else play(0,0);return;}if(a.paused)a.play();else a.pause();}
 function syncPlayBtn(){const b=document.getElementById("btnPlay");if(b)b.textContent=a.paused?"Play":"Pause";}
-function placeOverlay(){document.getElementById("dlg").style.top="0px";}
-function showSum(){const L=(i>=0?sichtbar[i]:null)||sichtbar[0];if(!L)return;document.getElementById("dlgT").textContent=labelOf(L);document.getElementById("dlgTags").textContent=(L.tags||[]).join(" ");document.getElementById("dlgB").textContent="Text wird geladen …";placeOverlay();document.getElementById("dlg").classList.add("on");loadLectureText(L).then(function(t){document.getElementById("dlgB").textContent=t||L.sum||"Kein Text gefunden.";});}
-function hideSum(){document.getElementById("dlg").classList.remove("on");}
-document.getElementById("btnCloseSum").onclick=hideSum;
+function placeOverlay(){const d=document.getElementById("dlg");if(d){d.style.top="0px";d.style.left="0px";d.style.right="0px";d.style.bottom="0px";}}
+function showSum(){
+  const L=(i>=0?sichtbar[i]:null)||sichtbar[0];if(!L)return;
+  window.__tvModal=true;
+  document.getElementById("dlgT").textContent=labelOf(L);
+  document.getElementById("dlgTags").textContent=(L.tags||[]).join(" ");
+  document.getElementById("dlgB").textContent="Text wird geladen …";
+  placeOverlay();
+  document.getElementById("dlg").classList.add("on");
+  loadLectureText(L).then(function(t){document.getElementById("dlgB").textContent=t||L.sum||"Kein Text gefunden.";});
+}
+function hideSum(){
+  window.__tvModal=false;
+  window.__tvGuardUntil=Date.now()+450;
+  document.getElementById("dlg").classList.remove("on");
+}
+window.hideSum=hideSum;
+window.showSum=showSum;
+document.getElementById("btnCloseSum").onclick=function(e){ if(e){e.preventDefault();e.stopPropagation();} hideSum(); };
 document.getElementById("dlg").onclick=function(e){if(e.target===this)hideSum();};
 a.addEventListener("loadedmetadata",function(){if(resumeTo>0&&isFinite(a.duration)){a.currentTime=Math.min(resumeTo,Math.max(0,a.duration-1));resumeTo=0;}});
 a.addEventListener("timeupdate",function(){if(!a.paused)saveState();});
@@ -134,6 +170,7 @@ a.addEventListener("ended",function(){saveState();next();});
 a.addEventListener("error",function(){document.getElementById("err").textContent="Diese Datei startet nicht."});
 let skipLock=0;
 function skipTap(sec){
+  if(modalOpen()) return;
   const now=Date.now();
   if(now-skipLock<250) return;
   skipLock=now;
