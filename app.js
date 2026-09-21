@@ -1,10 +1,74 @@
 const FOLDER="https://www.dropbox.com/scl/fo/m10ycst2zjp72cwygc1fo/ALB3AGy0uKvmitTOetYJB4U";
 const RLKEY="ubqr97xi75q2xr6d3jhf4hcyf";
 const STORE="tv-player-resume-v1";
+const POS_STORE="tv-player-positions-v2";
 const TEXT_BASE="texte/";
 const LESUNGEN=(window.LESUNGEN||[]).map(function(L){ L.sum=L.sum||""; return L; });
 function mediaUrl(name){return FOLDER+"?rlkey="+encodeURIComponent(RLKEY)+"&preview="+encodeURIComponent(name)+"&raw=1";}
 const textCache={};
+function loadPositions(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(POS_STORE)||"{}");
+    if(raw && typeof raw==="object" && !Array.isArray(raw)) return raw;
+  }catch(e){}
+  // migrate single last-resume into map once
+  try{
+    const st=JSON.parse(localStorage.getItem(STORE)||"null");
+    if(st && st.file){
+      const m={}; m[st.file]={time:st.time||0,ts:Date.now()};
+      localStorage.setItem(POS_STORE,JSON.stringify(m));
+      return m;
+    }
+  }catch(e){}
+  return {};
+}
+function getPos(file){
+  const m=loadPositions();
+  const p=m[file];
+  return p && typeof p.time==="number" ? p.time : 0;
+}
+function setPos(file,time){
+  if(!file) return;
+  const m=loadPositions();
+  const t=Math.max(0,time||0);
+  if(t<2){ delete m[file]; }
+  else { m[file]={time:t,ts:Date.now()}; }
+  localStorage.setItem(POS_STORE,JSON.stringify(m));
+}
+function clearPos(file){
+  if(!file) return;
+  const m=loadPositions();
+  delete m[file];
+  localStorage.setItem(POS_STORE,JSON.stringify(m));
+}
+function fmtZeitraum(from,to){
+  if(!from && !to) return "";
+  if(from && to && from!==to) return "Zeitraum: "+from+" – "+to;
+  return "Zeitraum: "+(to||from);
+}
+function applyZeitraum(from,to){
+  const el=document.getElementById("zeitraum");
+  if(!el) return;
+  const t=fmtZeitraum(from,to);
+  if(t) el.textContent=t;
+}
+function loadZeitraum(){
+  const z=window.TV_ZEITRAUM||{};
+  if(z.from||z.to) applyZeitraum(z.from,z.to);
+  // optional Dropbox override: first line "TT.MM.JJJJ – TT.MM.JJJJ" or "from|to"
+  fetch(mediaUrl("zeitraum.txt"),{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){
+    t=(t||"").trim().split(/\r?\n/)[0]||"";
+    if(!t) return;
+    let from="",to="";
+    if(t.indexOf("|")>=0){ const p=t.split("|"); from=p[0].trim(); to=(p[1]||"").trim(); }
+    else {
+      const m=t.replace(/^Zeitraum:\s*/i,"").split(/\s*[–-]\s*/);
+      if(m.length>=2){ from=m[0].trim(); to=m[1].trim(); }
+      else if(m.length===1) to=m[0].trim();
+    }
+    if(from||to) applyZeitraum(from,to);
+  }).catch(function(){});
+}
 function loadLectureText(L){
   const key=L.file;
   if(textCache[key]!==undefined) return Promise.resolve(textCache[key]);
@@ -21,7 +85,21 @@ function loadLectureText(L){
 }
 function fmt(sec){sec=Math.max(0,Math.floor(sec||0));return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0");}
 function loadState(){try{return JSON.parse(localStorage.getItem(STORE)||"null");}catch(e){return null;}}
-function saveState(){if(i<0||!sichtbar[i])return;localStorage.setItem(STORE,JSON.stringify({file:sichtbar[i].file,time:a.currentTime||0}));updateResume();}
+function saveState(){
+  if(i<0||!sichtbar[i])return;
+  const file=sichtbar[i].file;
+  const time=a.currentTime||0;
+  const dur=a.duration;
+  // near end → treat as finished, clear resume for this talk
+  if(isFinite(dur)&&dur>30 && time>=dur*0.97){
+    clearPos(file);
+    localStorage.setItem(STORE,JSON.stringify({file:file,time:0}));
+  } else {
+    setPos(file,time);
+    localStorage.setItem(STORE,JSON.stringify({file:file,time:time}));
+  }
+  updateResume();
+}
 let i=-1,resumeTo=0,sichtbar=LESUNGEN.slice(),started=false;
 window.__tvModal=false;
 window.__tvGuardUntil=0;
@@ -65,7 +143,9 @@ function zeichne(){
     d.type="button";
     d.className="item"+(idx===i?" active":"");
     d.setAttribute("data-idx",String(idx));
-    d.innerHTML=labelOf(L)+"<div class='tags'>"+(L.tags||[]).join(" ")+"</div>";
+    const pos=getPos(L.file);
+    const hint=pos>3?(" · weiter bei "+fmt(pos)):"";
+    d.innerHTML=labelOf(L)+hint+"<div class='tags'>"+(L.tags||[]).join(" ")+"</div>";
     box.appendChild(d);
   });
 }
@@ -89,7 +169,7 @@ function zeichne(){
     if(!d||!box.contains(d)) return;
     const idx=parseInt(d.getAttribute("data-idx"),10);
     if(!isFinite(idx)) return;
-    play(idx,0);
+    play(idx);
   });
 })();
 function updateResume(){const st=loadState();const btn=document.getElementById("btnResume");if(!st||!st.file){btn.disabled=true;btn.textContent="Weiterhören";return;}const L=LESUNGEN.find(function(x){return x.file===st.file;});btn.disabled=false;btn.textContent="Weiterhören · "+(L?labelOf(L):"Datei")+" ("+fmt(st.time)+")";}
@@ -98,7 +178,11 @@ function play(idx,startAt){
   if(!sichtbar.length)return;
   i=Math.max(0,Math.min(idx,sichtbar.length-1));
   const L=sichtbar[i];
-  resumeTo=startAt||0;
+  let at=startAt;
+  if(at===undefined){
+    at=getPos(L.file)||0;
+  }
+  resumeTo=at||0;
   started=false;
   syncSkipBtns();
   document.getElementById("now").textContent=labelOf(L);
@@ -203,7 +287,11 @@ a.addEventListener("loadedmetadata",function(){
 a.addEventListener("canplay",syncSkipBtns);
 a.addEventListener("timeupdate",function(){if(!a.paused)saveState(); syncSkipBtns();});
 a.addEventListener("pause",function(){saveState();syncPlayBtn();});
-a.addEventListener("ended",function(){saveState();started=false;syncSkipBtns();next();});
+a.addEventListener("ended",function(){
+  if(i>=0&&sichtbar[i]) clearPos(sichtbar[i].file);
+  localStorage.setItem(STORE,JSON.stringify({file:sichtbar[i]?sichtbar[i].file:"",time:0}));
+  started=false;syncSkipBtns();updateResume();next();
+});
 a.addEventListener("error",function(){started=false;syncSkipBtns();document.getElementById("err").textContent="Diese Datei startet nicht.";});
 function bindSkip(id,sec){
   const el=document.getElementById(id);
@@ -250,5 +338,6 @@ function loadExtraCatalog(){
   });
 }
 zeichne();updateResume();syncSkipBtns();
+loadZeitraum();
 loadExtraCatalog();
 if(!LESUNGEN.length) document.getElementById("err").textContent="Katalog lesungen.js fehlt.";
