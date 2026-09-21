@@ -213,8 +213,29 @@
 })();
 
 (function () {
+  if (document.getElementById("tv-cover-size")) return;
+  var st = document.createElement("style");
+  st.id = "tv-cover-size";
+  st.textContent =
+    "header{padding-left:0;padding-right:0}" +
+    ".cover-row{max-width:none!important;width:100%;padding:0!important;gap:16px}" +
+    "img.cover,canvas.cover{display:block;width:100vw!important;max-width:100vw!important;height:auto!important;margin:0 auto 8px!important;object-fit:contain}" +
+    ".cover-row a{display:block;width:100%}" +
+    "@media (max-width:800px){.cover-row{flex-direction:column!important}.cover-blurb{text-align:center;padding:0 12px}}" +
+    "@media (min-width:801px){header{padding-left:12px;padding-right:12px}.cover-row{padding:0 12px!important;align-items:flex-start;justify-content:center}.cover-row a{width:auto}img.cover,canvas.cover{width:auto!important;max-width:90vw!important;height:50vh!important;max-height:50vh!important}}";
+  document.head.appendChild(st);
+})();
+
+(function () {
   function reduce() {
     return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+  function measure(el) {
+    var r = el.getBoundingClientRect();
+    var desktop = window.innerWidth >= 801;
+    var h = desktop ? Math.round(window.innerHeight * 0.5) : Math.max(120, Math.round(r.height || (window.innerWidth * 1.4)));
+    var w = desktop ? Math.round(h * 0.72) : Math.round(window.innerWidth);
+    return { w: Math.max(80, w), h: Math.max(80, h) };
   }
   function waterCover() {
     if (window.__tvWaterOn || reduce()) return;
@@ -222,21 +243,17 @@
     if (!img) return;
     window.__tvWaterOn = 1;
     function run() {
-      var w = Math.max(80, Math.round(img.getBoundingClientRect().width || 140));
-      var h = Math.max(80, Math.round(img.getBoundingClientRect().height || 200));
-      var dpr = Math.min(2, window.devicePixelRatio || 1);
+      var size = measure(img);
+      var w = size.w, h = size.h;
+      var dpr = window.innerWidth >= 801 ? 1 : Math.min(1.5, window.devicePixelRatio || 1);
+      var maxH = 420;
+      var scale = h * dpr > maxH ? maxH / (h * dpr) : 1;
       var c = document.createElement("canvas");
       c.className = img.className;
       c.setAttribute("role", "img");
       c.setAttribute("aria-label", img.alt || "Tadatmya Vedanta");
-      c.width = Math.round(w * dpr);
-      c.height = Math.round(h * dpr);
-      c.style.height = h + "px";
-      c.style.width = "auto";
-      c.style.borderRadius = getComputedStyle(img).borderRadius || "4px";
-      c.style.boxShadow = getComputedStyle(img).boxShadow;
-      c.style.display = "block";
-      c.style.margin = getComputedStyle(img).margin;
+      c.width = Math.max(80, Math.round(w * dpr * scale));
+      c.height = Math.max(80, Math.round(h * dpr * scale));
       var ctx = c.getContext("2d");
       if (!ctx) return;
       var src = new Image();
@@ -246,11 +263,11 @@
         img.style.pointerEvents = "none";
         img.style.width = "0";
         img.style.height = "0";
-        img.parentNode.insertBefore(c, img);
-        var t = 0, raf = 0;
+        if (img.parentNode) img.parentNode.insertBefore(c, img);
+        var t = 0;
         function frame() {
           if (document.visibilityState === "hidden") {
-            raf = requestAnimationFrame(frame);
+            requestAnimationFrame(frame);
             return;
           }
           t += 0.035;
@@ -259,10 +276,11 @@
           for (var y = 0; y < ch; y++) {
             var n = y / ch;
             var dx =
-              Math.sin(y / (14 * dpr) + t) * (2.6 * dpr) +
-              Math.sin(y / (7 * dpr) + t * 0.62) * (1.3 * dpr) +
-              Math.sin(n * 6 + t * 0.4) * (0.8 * dpr);
-            ctx.drawImage(src, 0, y / dpr * (src.height / h), src.width, src.height / ch, dx, y, cw, 1);
+              Math.sin(y / 14 + t) * 2.4 +
+              Math.sin(y / 7 + t * 0.62) * 1.2 +
+              Math.sin(n * 6 + t * 0.4) * 0.7;
+            var sy = (y / ch) * src.height;
+            ctx.drawImage(src, 0, sy, src.width, Math.max(1, src.height / ch), dx, y, cw, 1);
           }
           var g = ctx.createLinearGradient(0, 0, 0, ch);
           g.addColorStop(0, "rgba(255,255,255,0.06)");
@@ -271,16 +289,16 @@
           g.addColorStop(1, "rgba(0,20,40,0.10)");
           ctx.fillStyle = g;
           ctx.fillRect(0, 0, cw, ch);
-          raf = requestAnimationFrame(frame);
+          requestAnimationFrame(frame);
         }
         frame();
       };
       src.src = img.currentSrc || img.src;
     }
-    if (img.complete && img.naturalWidth) run();
-    else img.addEventListener("load", run, { once: true });
+    if (img.complete && img.naturalWidth) setTimeout(run, 80);
+    else img.addEventListener("load", function () { setTimeout(run, 80); }, { once: true });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", waterCover);
   else waterCover();
-  setTimeout(waterCover, 400);
+  setTimeout(waterCover, 500);
 })();
