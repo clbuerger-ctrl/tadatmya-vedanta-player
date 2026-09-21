@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tadatmya Vedanta Player V1.29</title>
+<title>Tadatmya Vedanta Player V1.30</title>
 <style>
 :root{--bg:#1a1410;--gold:#c9a36a;--text:#f3e6d0;--muted:#b7a48c;--card:#2a211b}
 *{box-sizing:border-box}
@@ -51,13 +51,13 @@ button:disabled{opacity:.45}
 <body>
 <header>
   <img class="cover" src="cover.jpg" alt="Tadatmya Vedanta">
-  <h1>Tadatmya Vedanta Player V1.29</h1>
+  <h1>Tadatmya Vedanta Player V1.30</h1>
   <h2>Sammlung der veröffentlichten Sonntags-Vorträge von Rishi Sahadev (<a href="https://t.me/+7qSv0wH6VkE0Njky" target="_blank" rel="noopener">Telegram</a>) und eine Auswahl verschiedener Satsangs von Swami Revatikanta und Pandit Mayuran zu diesem wichtigen Thema</h2>
   <div class="meta">Zeitraum: 13.12.2025 – 18.09.2026</div>
 </header>
 <div id="playerBar">
   <div class="now" id="now"></div>
-  <audio id="a" controls preload="none" controlsList="nodownload"></audio>
+  <audio id="a" controls preload="none" playsinline webkit-playsinline controlsList="nodownload"></audio>
   <div class="transport">
     <button type="button" onclick="prev()">&#9664; Zurück</button>
     <button type="button" class="gold" id="btnPlay" onclick="toggle()">Play</button>
@@ -92,7 +92,7 @@ button:disabled{opacity:.45}
     <div class="dlgfoot"><button type="button" id="btnCloseSum">Schließen</button></div>
   </div>
 </div>
-<script src="lesungen.js?t=129"></script>
+<script src="lesungen.js?t=130"></script>
 <script>
 const FOLDER="https://www.dropbox.com/scl/fo/m10ycst2zjp72cwygc1fo/ALB3AGy0uKvmitTOetYJB4U";
 const RLKEY="ubqr97xi75q2xr6d3jhf4hcyf";
@@ -128,7 +128,7 @@ function filterList(){const q=document.getElementById("q").value.trim().toLowerC
 function labelOf(L){return (L.nr?"#"+L.nr+"  ":"")+L.titel;}
 function zeichne(){const box=document.getElementById("list");box.innerHTML="";sichtbar.forEach(function(L,idx){const d=document.createElement("div");d.className="item"+(idx===i?" active":"");d.innerHTML=labelOf(L)+"<div class='tags'>"+(L.tags||[]).join(" ")+"</div>";d.onclick=function(){play(idx,0);};box.appendChild(d);});}
 function updateResume(){const st=loadState();const btn=document.getElementById("btnResume");if(!st||!st.file){btn.disabled=true;btn.textContent="Weiterhören";return;}const L=LESUNGEN.find(function(x){return x.file===st.file;});btn.disabled=false;btn.textContent="Weiterhören · "+(L?labelOf(L):"Datei")+" ("+fmt(st.time)+")";}
-function play(idx,startAt){if(!sichtbar.length)return;i=Math.max(0,Math.min(idx,sichtbar.length-1));const L=sichtbar[i];resumeTo=startAt||0;document.getElementById("now").textContent=labelOf(L);document.getElementById("nr").value=L.nr||"";document.getElementById("err").textContent="";zeichne();a.pause();a.src=mediaUrl(L.file);a.load();const p=a.play();if(p&&p.catch)p.catch(function(){document.getElementById("err").textContent="Kein Ton — einmal Play im Balken tippen.";});}
+function play(idx,startAt){if(!sichtbar.length)return;i=Math.max(0,Math.min(idx,sichtbar.length-1));const L=sichtbar[i];resumeTo=startAt||0;document.getElementById("now").textContent=labelOf(L);document.getElementById("nr").value=L.nr||"";document.getElementById("err").textContent="";zeichne();a.muted=false;a.volume=1;a.src=mediaUrl(L.file);function tryPlay(){const p=a.play();if(p&&p.catch)p.catch(function(){document.getElementById("err").textContent="Kein Ton — Play im Balken oder im grauen Regler tippen.";});}if(a.readyState>=3) tryPlay();else a.addEventListener("canplay",tryPlay,{once:true});a.load();}
 function playNr(){const n=parseInt(document.getElementById("nr").value,10);const idx=sichtbar.findIndex(function(L){return L.nr===n;});if(idx<0){document.getElementById("err").textContent="Keine Lesung für #"+n;return;}play(idx,0);}
 function resumeNow(){const st=loadState();if(!st)return;let idx=sichtbar.findIndex(function(L){return L.file===st.file;});if(idx<0){document.getElementById("q").value="";filterList();idx=sichtbar.findIndex(function(L){return L.file===st.file;});}if(idx<0)return;play(idx,st.time||0);}
 function prev(){play(i<0?0:i-1,0);} function next(){play(i<0?0:i+1,0);}
@@ -197,6 +197,6 @@ if(!LESUNGEN.length) document.getElementById("err").textContent="Katalog lesunge
     </div>
   </div>
 </div>
-<script src="feedback.js?v=1.29"></script>
+<script src="feedback.js?v=1.30"></script>
 </body>
 </html>
