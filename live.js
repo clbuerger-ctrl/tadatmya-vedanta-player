@@ -1,65 +1,218 @@
-(function(){
-  const API="https://countapi.mileshilliard.com/api/v1";
-  const CK="tvp-clbuerger-live-";
-  const KNOWN=[
-    "Bonn, DE","Mannheim, DE","Springen, DE","Berlin, DE","Hamburg, DE","München, DE",
-    "Köln, DE","Frankfurt, DE","Stuttgart, DE","Düsseldorf, DE","Wien, AT","Zürich, CH",
-    "Basel, CH","Bern, CH","Salzburg, AT","Paris, FR","London, GB","Amsterdam, NL",
-    "Brüssel, BE","Prag, CZ","Warschau, PL","Rom, IT","Madrid, ES","Lissabon, PT",
-    "Stockholm, SE","Kopenhagen, DK","Oslo, NO","Helsinki, FI","Dublin, IE",
-    "New York, US","Los Angeles, US","Toronto, CA","Sydney, AU","Kapstadt, ZA",
-    "Mumbai, IN","Delhi, IN","Chennai, IN","Mauritius","Bali, ID"
-  ];
-  function bucket(){return Math.floor(Date.now()/600000);}
-  function slug(s){return String(s||"ort").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40);}
-  function hit(k){return fetch(API+"/hit/"+encodeURIComponent(k)).then(function(r){return r.json();}).then(function(j){return +j.value||0;}).catch(function(){return 0;});}
-  function get(k){return fetch(API+"/get/"+encodeURIComponent(k)).then(function(r){return r.ok?r.json():{value:0};}).then(function(j){return +j.value||0;}).catch(function(){return 0;});}
-  function box(){
-    let el=document.getElementById("tv-live");
-    if(el) return el;
-    const st=document.createElement("style");
-    st.textContent="#tv-live{font-size:.68rem;color:#cbb89a;line-height:1.35;text-align:right;padding:0 12px 8px}";
+(function () {
+  const BROKER = "wss://broker.emqx.io:8084/mqtt";
+  const TOPIC = "tvp/clbuerger/presence/v1/";
+  const WINDOW_MS = 10 * 60 * 1000;
+  const INTERVAL_MS = 75 * 1000;
+  const peers = Object.create(null);
+  let client = null;
+  let timer = null;
+  let sid = "";
+  let city = "";
+  let country = "";
+  let here = "";
+
+  function sessionId() {
+    try {
+      var id = sessionStorage.getItem("tvp-presence-id");
+      if (!id) {
+        id = "s" + Math.random().toString(16).slice(2) + Date.now().toString(16);
+        sessionStorage.setItem("tvp-presence-id", id);
+      }
+      return id;
+    } catch (e) {
+      return "s" + Math.random().toString(16).slice(2);
+    }
+  }
+
+  function box() {
+    var el = document.getElementById("tv-live");
+    if (el) return el;
+    var st = document.createElement("style");
+    st.textContent =
+      "#tv-live{font-size:.68rem;color:#cbb89a;line-height:1.35;text-align:right;padding:0 12px 8px}";
     document.head.appendChild(st);
-    el=document.createElement("div"); el.id="tv-live";
-    const foot=document.querySelector("footer.fb")||document.body;
+    el = document.createElement("div");
+    el.id = "tv-live";
+    var foot = document.querySelector("footer.fb") || document.body;
     foot.appendChild(el);
     return el;
   }
-  function draw(rows, here){
-    const el=box();
-    if(!rows.length){
-      el.textContent="gerade aktiv (10 min): —"+(here?" · hier: "+here:"");
-      return;
-    }
-    el.innerHTML="gerade aktiv (10 min), Top "+rows.length+": "+rows.map(function(r){
-      return r.name+(r.n>1?" ×"+r.n:"");
-    }).join(" · ")+(here?"<br>hier: "+here:"");
-  }
-  function poll(here){
-    const b=bucket();
-    const names=KNOWN.slice();
-    if(here && names.indexOf(here)<0) names.unshift(here);
-    Promise.all(names.map(function(name){
-      return get(CK+b+"-"+slug(name)).then(function(n){return {name:name,n:n};});
-    })).then(function(rows){
-      rows=rows.filter(function(r){return r.n>0;}).sort(function(a,b){return b.n-a.n;}).slice(0,10);
-      draw(rows, here);
+
+  function prune() {
+    var now = Date.now();
+    Object.keys(peers).forEach(function (id) {
+      var p = peers[id];
+      if (!p || !p.t || now - p.t > WINDOW_MS) delete peers[id];
     });
   }
-  function start(){
-    if(window.__tvLiveOn) return;
-    window.__tvLiveOn=1;
-    draw([], "");
-    fetch("https://get.geojs.io/v1/ip/geo.json").then(function(r){return r.json();}).then(function(g){
-      const here=[g.city,g.country_code||g.country].filter(Boolean).join(", ")||"";
-      if(here) hit(CK+bucket()+"-"+slug(here));
-      poll(here);
-      setInterval(function(){
-        if(here) hit(CK+bucket()+"-"+slug(here));
-        poll(here);
-      }, 60000);
-    }).catch(function(){ poll(""); });
+
+  function top10() {
+    prune();
+    var by = Object.create(null);
+    Object.keys(peers).forEach(function (id) {
+      var p = peers[id];
+      if (!p) return;
+      var label = [p.c, p.o].filter(Boolean).join(", ") || "unbekannt";
+      by[label] = (by[label] || 0) + 1;
+    });
+    return Object.keys(by)
+      .map(function (k) {
+        return { name: k, n: by[k] };
+      })
+      .sort(function (a, b) {
+        return b.n - a.n || a.name.localeCompare(b.name);
+      })
+      .slice(0, 10);
   }
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", start);
+
+  function draw() {
+    var rows = top10();
+    var el = box();
+    var total = rows.reduce(function (s, r) {
+      return s + r.n;
+    }, 0);
+    if (!rows.length) {
+      el.textContent =
+        "gerade aktiv (10 Min): —" + (here ? " · hier: " + here : "");
+      return;
+    }
+    el.innerHTML =
+      "gerade aktiv (10 Min): " +
+      total +
+      " · TOP10: " +
+      rows
+        .map(function (r) {
+          return r.name + (r.n > 1 ? " ×" + r.n : "");
+        })
+        .join(" · ") +
+      (here ? "<br>hier: " + here : "");
+  }
+
+  function applyPeer(id, raw) {
+    if (!id) return;
+    if (!raw) {
+      delete peers[id];
+      draw();
+      return;
+    }
+    try {
+      var p = typeof raw === "string" ? JSON.parse(raw) : raw;
+      if (!p || !p.t) delete peers[id];
+      else
+        peers[id] = {
+          c: String(p.c || "").slice(0, 64),
+          o: String(p.o || "").slice(0, 8),
+          t: +p.t || 0
+        };
+    } catch (e) {
+      delete peers[id];
+    }
+    draw();
+  }
+
+  function payload() {
+    return JSON.stringify({
+      c: (city || "").slice(0, 64),
+      o: (country || "").slice(0, 8),
+      t: Date.now()
+    });
+  }
+
+  function publish() {
+    if (!client || !client.connected) return;
+    if (!city && !country) return;
+    var body = payload();
+    try {
+      client.publish(TOPIC + sid, body, { qos: 0, retain: true });
+      applyPeer(sid, body);
+    } catch (e) {}
+  }
+
+  function clearMine() {
+    if (!client || !sid) return;
+    try {
+      client.publish(TOPIC + sid, "", { qos: 0, retain: true });
+    } catch (e) {}
+  }
+
+  function loadMqtt(cb) {
+    if (window.mqtt) {
+      cb();
+      return;
+    }
+    var s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/mqtt@4.3.7/dist/mqtt.min.js";
+    s.async = true;
+    s.onload = function () {
+      cb();
+    };
+    s.onerror = function () {
+      box().textContent =
+        "gerade aktiv (10 Min): — (Verbindung gerade nicht möglich)" +
+        (here ? " · hier: " + here : "");
+    };
+    document.head.appendChild(s);
+  }
+
+  function connect() {
+    loadMqtt(function () {
+      if (!window.mqtt) return;
+      try {
+        client = window.mqtt.connect(BROKER, {
+          clientId: "tvp-" + sid.slice(0, 18),
+          clean: true,
+          reconnectPeriod: 5000,
+          connectTimeout: 12000
+        });
+        client.on("connect", function () {
+          client.subscribe(TOPIC + "#", { qos: 0 });
+          publish();
+          if (timer) clearInterval(timer);
+          timer = setInterval(function () {
+            if (document.visibilityState === "hidden") return;
+            publish();
+            draw();
+          }, INTERVAL_MS);
+        });
+        client.on("message", function (topic, buf) {
+          if (topic.indexOf(TOPIC) !== 0) return;
+          var id = topic.slice(TOPIC.length);
+          if (!id || id.indexOf("/") !== -1) return;
+          var raw = buf && buf.length ? buf.toString() : "";
+          applyPeer(id, raw);
+        });
+        client.on("error", function () {});
+      } catch (e) {}
+    });
+  }
+
+  function start() {
+    if (window.__tvLiveOn) return;
+    window.__tvLiveOn = 1;
+    sid = sessionId();
+    draw();
+    fetch("https://get.geojs.io/v1/ip/geo.json")
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (g) {
+        city = (g.city || "").trim();
+        country = (g.country_code || g.country || "").trim();
+        here = [city, country].filter(Boolean).join(", ");
+        draw();
+        connect();
+      })
+      .catch(function () {
+        connect();
+      });
+    window.addEventListener("pagehide", clearMine);
+    window.addEventListener("beforeunload", clearMine);
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") publish();
+    });
+  }
+
+  if (document.readyState === "loading")
+    document.addEventListener("DOMContentLoaded", start);
   else start();
 })();
