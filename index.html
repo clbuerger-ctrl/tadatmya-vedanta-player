@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tadatmya Vedanta Player V1.47</title>
+<title>Tadatmya Vedanta Player V1.48</title>
 <style>
 :root{--bg:#1a1410;--gold:#c9a36a;--text:#f3e6d0;--muted:#b7a48c;--card:#2a211b}
 *{box-sizing:border-box}
@@ -30,8 +30,8 @@ input[type=search]{flex:1;min-width:140px}
 button{background:#4a372b;color:var(--text);border:1px solid #6b5340;padding:4px 9px}
 button.gold{background:#8b6914;border-color:#c9a36a}
 button:disabled{opacity:.45}
-.list{margin:8px 12px 24px;border:1px solid #5a4634;border-radius:10px;position:relative;z-index:5;pointer-events:auto}
-button.item{display:block;width:100%;margin:0;text-align:left;background:transparent;color:inherit;font:inherit;border:none;border-bottom:1px solid #3d2f26;border-radius:0;min-height:0;padding:8px 12px;cursor:pointer;user-select:none;-webkit-user-select:none;position:relative;z-index:5}
+.list{margin:8px 12px 24px;border:1px solid #5a4634;border-radius:10px;position:relative;z-index:5;touch-action:pan-y}
+button.item{display:block;width:100%;margin:0;text-align:left;background:transparent;color:inherit;font:inherit;border:none;border-bottom:1px solid #3d2f26;border-radius:0;min-height:0;padding:8px 12px;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:pan-y}
 button.item:hover{background:#3a2e26}
 button.item.active{background:#4a372b;color:var(--gold)}
 .tags{color:var(--muted);font-size:.74rem;margin-top:2px;pointer-events:none}
@@ -55,7 +55,7 @@ button.item.active{background:#4a372b;color:var(--gold)}
 </head>
 <body>
 <header>
-  <h1>Tadatmya Vedanta Player V1.47</h1>
+  <h1>Tadatmya Vedanta Player V1.48</h1>
   <h2>Sammlung der veröffentlichten Sonntags-Vorträge von Rishi Sahadev (<a href="https://t.me/+7qSv0wH6VkE0Njky" target="_blank" rel="noopener">Telegram</a>) und eine Auswahl verschiedener Satsangs von Swami Revatikaanta und Pandit Mayuran zu diesem wichtigen Thema</h2>
   <div class="meta">Zeitraum: 13.12.2025 – 18.09.2026</div>
   <div class="cover-gap" aria-hidden="true"></div>
@@ -66,9 +66,9 @@ button.item.active{background:#4a372b;color:var(--gold)}
   <audio id="a" controls preload="none" playsinline webkit-playsinline controlsList="nodownload"></audio>
   <div class="transport">
     <button type="button" onclick="prev()">&#9664; Zurück</button>
-    <button type="button" id="btnSkipBack">-10s</button>
+    <button type="button" id="btnSkipBack" disabled>-10s</button>
     <button type="button" class="gold" id="btnPlay" onclick="toggle()">Play</button>
-    <button type="button" id="btnSkipFwd">+10s</button>
+    <button type="button" id="btnSkipFwd" disabled>+10s</button>
     <button type="button" onclick="next()">Vor &#9654;</button>
   </div>
   <div class="row"><input id="q" type="search" placeholder="Suche #Hashtag oder Wort" oninput="filterList()"></div>
@@ -101,7 +101,7 @@ button.item.active{background:#4a372b;color:var(--gold)}
   </div>
 </div>
 <script src="lesungen.js?t=135"></script>
-<script src="app.js?v=147"></script>
+<script src="app.js?v=148"></script>
 
 <footer class="fb">
   <button type="button" class="fb-link" onclick="openFb()">Feedback und Anregungen →</button>
