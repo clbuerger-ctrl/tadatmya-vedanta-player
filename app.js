@@ -35,7 +35,50 @@ function updateResume(){const st=loadState();const btn=document.getElementById("
 function play(idx,startAt){if(!sichtbar.length)return;i=Math.max(0,Math.min(idx,sichtbar.length-1));const L=sichtbar[i];resumeTo=startAt||0;document.getElementById("now").textContent=labelOf(L);document.getElementById("nr").value=L.nr||"";document.getElementById("err").textContent="";zeichne();a.muted=false;a.volume=1;a.src=mediaUrl(L.file);function tryPlay(){const p=a.play();if(p&&p.catch)p.catch(function(){document.getElementById("err").textContent="Kein Ton — Play im Balken oder im grauen Regler tippen.";});}if(a.readyState>=3) tryPlay();else a.addEventListener("canplay",tryPlay,{once:true});a.load();}
 function playNr(){const n=parseInt(document.getElementById("nr").value,10);const idx=sichtbar.findIndex(function(L){return L.nr===n;});if(idx<0){document.getElementById("err").textContent="Keine Lesung für #"+n;return;}play(idx,0);}
 function resumeNow(){const st=loadState();if(!st)return;let idx=sichtbar.findIndex(function(L){return L.file===st.file;});if(idx<0){document.getElementById("q").value="";filterList();idx=sichtbar.findIndex(function(L){return L.file===st.file;});}if(idx<0)return;play(idx,st.time||0);}
-function skip(sec){if(!a.getAttribute("src"))return;try{const t=(a.currentTime||0)+sec;if(isFinite(a.duration)&&a.duration>1)a.currentTime=Math.max(0,Math.min(t,a.duration-0.25));else a.currentTime=Math.max(0,t);}catch(e){}}
+function skipTarget(sec){
+  let base=a.currentTime;
+  if(!isFinite(base)||base<0) base=0;
+  let dest=base+sec;
+  const dur=a.duration;
+  if(isFinite(dur)&&dur>1&&dur!==Infinity) dest=Math.max(0,Math.min(dest,dur-0.25));
+  else dest=Math.max(0,dest);
+  return dest;
+}
+function applySeek(dest){
+  try{
+    if(typeof a.fastSeek==="function") a.fastSeek(dest);
+    else a.currentTime=dest;
+  }catch(e){
+    try{ a.currentTime=dest; }catch(e2){}
+  }
+}
+function skip(sec){
+  if(!a.getAttribute("src")){
+    if(loadState()) resumeNow();
+    return;
+  }
+  const dest=skipTarget(sec);
+  const wasPlaying=!a.paused;
+  try{ if(!a.paused) a.pause(); }catch(e){}
+  applySeek(dest);
+  function resumePlay(){
+    if(!wasPlaying) return;
+    const p=a.play();
+    if(p&&p.catch) p.catch(function(){});
+  }
+  function onSeeked(){
+    a.removeEventListener("seeked",onSeeked);
+    resumePlay();
+  }
+  a.addEventListener("seeked",onSeeked);
+  setTimeout(function(){
+    if(Math.abs((a.currentTime||0)-dest)>1.5) applySeek(dest);
+    resumePlay();
+    a.removeEventListener("seeked",onSeeked);
+    saveState();
+  },180);
+}
+window.skip=skip;
 function prev(){play(i<0?0:i-1,0);} function next(){play(i<0?0:i+1,0);}
 function toggle(){if(!a.getAttribute("src")){if(loadState())resumeNow();else play(0,0);return;}if(a.paused)a.play();else a.pause();}
 function syncPlayBtn(){const b=document.getElementById("btnPlay");if(b)b.textContent=a.paused?"Play":"Pause";}
@@ -50,6 +93,27 @@ a.addEventListener("play",function(){syncPlayBtn();});
 a.addEventListener("pause",function(){saveState();syncPlayBtn();});
 a.addEventListener("ended",function(){saveState();next();});
 a.addEventListener("error",function(){document.getElementById("err").textContent="Diese Datei startet nicht."});
+let skipLock=0;
+function skipTap(sec){
+  const now=Date.now();
+  if(now-skipLock<250) return;
+  skipLock=now;
+  skip(sec);
+}
+function bindSkip(id,sec){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.addEventListener("click",function(e){ e.preventDefault(); skipTap(sec); });
+  el.addEventListener("pointerup",function(e){ e.preventDefault(); skipTap(sec); });
+}
+bindSkip("btnSkipBack",-10);
+bindSkip("btnSkipFwd",10);
+try{
+  if(navigator.mediaSession){
+    navigator.mediaSession.setActionHandler("seekbackward",function(){ skip(-10); });
+    navigator.mediaSession.setActionHandler("seekforward",function(){ skip(10); });
+  }
+}catch(e){}
 function mergeEntries(arr){
   if(!Array.isArray(arr)) return 0;
   let n=0;
