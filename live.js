@@ -68,24 +68,17 @@
   function draw() {
     var rows = top10();
     var el = box();
-    var total = rows.reduce(function (s, r) {
-      return s + r.n;
-    }, 0);
     if (!rows.length) {
-      el.textContent =
-        "gerade aktiv (10 Min): —" + (here ? " · hier: " + here : "");
+      el.textContent = "";
       return;
     }
-    el.innerHTML =
-      "gerade aktiv (10 Min): " +
-      total +
-      " · TOP10: " +
+    el.textContent =
+      "aktiv in: " +
       rows
         .map(function (r) {
           return r.name + (r.n > 1 ? " ×" + r.n : "");
         })
-        .join(" · ") +
-      (here ? "<br>hier: " + here : "");
+        .join(" · ");
   }
 
   function applyPeer(id, raw) {
@@ -147,9 +140,7 @@
       cb();
     };
     s.onerror = function () {
-      box().textContent =
-        "gerade aktiv (10 Min): — (Verbindung gerade nicht möglich)" +
-        (here ? " · hier: " + here : "");
+      box().textContent = "";
     };
     document.head.appendChild(s);
   }
