@@ -30,7 +30,28 @@ try{holdPitch();}catch(e){}
 a.addEventListener("play",function(){const sel=document.getElementById("speed");if(sel)setSpeed(sel.value);});
 function filterList(){const q=document.getElementById("q").value.trim().toLowerCase();sichtbar=LESUNGEN.filter(function(L){if(!q)return true;return (L.titel+" "+L.file+" "+(L.tags||[]).join(" ")).toLowerCase().indexOf(q)!==-1;});if(i>=sichtbar.length)i=sichtbar.length?0:-1;zeichne();}
 function labelOf(L){return (L.nr?"#"+L.nr+"  ":"")+L.titel;}
-function zeichne(){const box=document.getElementById("list");box.innerHTML="";sichtbar.forEach(function(L,idx){const d=document.createElement("div");d.className="item"+(idx===i?" active":"");d.innerHTML=labelOf(L)+"<div class='tags'>"+(L.tags||[]).join(" ")+"</div>";d.onclick=function(){play(idx,0);};box.appendChild(d);});}
+function zeichne(){
+  const box=document.getElementById("list");
+  box.innerHTML="";
+  sichtbar.forEach(function(L,idx){
+    const d=document.createElement("div");
+    d.className="item"+(idx===i?" active":"");
+    d.setAttribute("data-idx",String(idx));
+    d.innerHTML=labelOf(L)+"<div class='tags'>"+(L.tags||[]).join(" ")+"</div>";
+    box.appendChild(d);
+  });
+}
+(function bindList(){
+  const box=document.getElementById("list");
+  if(!box||box.__tvClick) return;
+  box.__tvClick=1;
+  box.addEventListener("click",function(e){
+    const d=e.target.closest(".item");
+    if(!d||!box.contains(d)) return;
+    const idx=parseInt(d.getAttribute("data-idx"),10);
+    if(isFinite(idx)) play(idx,0);
+  });
+})();
 function updateResume(){const st=loadState();const btn=document.getElementById("btnResume");if(!st||!st.file){btn.disabled=true;btn.textContent="Weiterhören";return;}const L=LESUNGEN.find(function(x){return x.file===st.file;});btn.disabled=false;btn.textContent="Weiterhören · "+(L?labelOf(L):"Datei")+" ("+fmt(st.time)+")";}
 function play(idx,startAt){if(!sichtbar.length)return;i=Math.max(0,Math.min(idx,sichtbar.length-1));const L=sichtbar[i];resumeTo=startAt||0;document.getElementById("now").textContent=labelOf(L);document.getElementById("nr").value=L.nr||"";document.getElementById("err").textContent="";zeichne();a.muted=false;a.volume=1;a.src=mediaUrl(L.file);function tryPlay(){const p=a.play();if(p&&p.catch)p.catch(function(){document.getElementById("err").textContent="Kein Ton — Play im Balken oder im grauen Regler tippen.";});}if(a.readyState>=3) tryPlay();else a.addEventListener("canplay",tryPlay,{once:true});a.load();}
 function playNr(){const n=parseInt(document.getElementById("nr").value,10);const idx=sichtbar.findIndex(function(L){return L.nr===n;});if(idx<0){document.getElementById("err").textContent="Keine Lesung für #"+n;return;}play(idx,0);}
