@@ -1,6 +1,24 @@
-/* TV Player V1.62 — shell only; never cache Dropbox audio */
-const CACHE="tv-player-v162";
-const SHELL=["./","index.html","app.js","cover.jpg","manifest.webmanifest"];
+/* TV Player V1.63 — shell only; never cache Dropbox audio; never serve HTML as JS */
+const CACHE="tv-player-v163";
+const SHELL=[
+  "./",
+  "index.html",
+  "app.js",
+  "lesungen.js",
+  "zeitraum.js",
+  "feedback.js",
+  "cover-rule.js",
+  "cover-fx.js",
+  "live.js",
+  "cover.jpg",
+  "manifest.webmanifest",
+  "sw.js"
+];
+function isAssetRequest(req){
+  const u=new URL(req.url);
+  const p=u.pathname;
+  return /\.(js|css|webmanifest|jpg|jpeg|png|svg|ico)$/i.test(p) || p.endsWith("/sw.js");
+}
 self.addEventListener("install",function(e){
   e.waitUntil(caches.open(CACHE).then(function(c){ return c.addAll(SHELL); }).then(function(){ return self.skipWaiting(); }));
 });
@@ -11,10 +29,8 @@ self.addEventListener("activate",function(e){
 });
 self.addEventListener("fetch",function(e){
   const url=new URL(e.request.url);
-  // never cache Dropbox / cross-origin audio
   if(url.origin!==self.location.origin) return;
   if(e.request.method!=="GET") return;
-  // network-first for navigations and JS/HTML; cache fallback
   e.respondWith(
     fetch(e.request).then(function(res){
       if(res && res.ok){
@@ -23,7 +39,12 @@ self.addEventListener("fetch",function(e){
       }
       return res;
     }).catch(function(){
-      return caches.match(e.request).then(function(hit){ return hit || caches.match("index.html"); });
+      return caches.match(e.request).then(function(hit){
+        if(hit) return hit;
+        // Never fall back to index.html for scripts/assets — that emptied the playlist.
+        if(isAssetRequest(e.request)) return Response.error();
+        return caches.match("index.html");
+      });
     })
   );
 });
