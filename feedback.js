@@ -1,1 +1,1 @@
-{{FILE:/workspace/tv-player/feedback.js}}
+PLACEHOLDER_LOAD_FROM_DISK
