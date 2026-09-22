@@ -561,3 +561,4 @@ ensureTextDlgFix();
 ensureAutoStart();
 ensureKapSubtitle();
 ensureDoneCounts();
+// V1.60 restored monolithic
