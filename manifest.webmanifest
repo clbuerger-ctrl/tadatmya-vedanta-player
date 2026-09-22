@@ -1,0 +1,9 @@
+{
+  "name": "Tadatmya Vedanta Player",
+  "short_name": "TV Player",
+  "start_url": "./?source=pwa",
+  "display": "standalone",
+  "background_color": "#1a1410",
+  "theme_color": "#1a1410",
+  "icons": [{"src": "cover.jpg", "sizes": "512x512", "type": "image/jpeg", "purpose": "any"}]
+}
