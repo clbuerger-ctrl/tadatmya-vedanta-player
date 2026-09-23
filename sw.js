@@ -7,6 +7,7 @@ const SHELL=[
   "lesungen.js",
   "zeitraum.js",
   "feedback.js",
+  "stats-daily.js",
   "cover-rule.js",
   "cover-fx.js",
   "live.js",
