@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
-<title>Tadatmya Vedanta Player V1.73</title>
+<title>Tadatmya Vedanta Player V1.74</title>
 <style>
 :root{--bg:#1a1410;--gold:#c9a36a;--text:#f3e6d0;--muted:#b7a48c;--card:#2a211b}
 *{box-sizing:border-box}
@@ -54,9 +54,8 @@ button.item.active{background:#4a372b;color:var(--gold)}
 .dlghead{padding:10px 12px 8px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0}
 .panel h3{margin:0;color:var(--gold);font-weight:normal;font-size:1rem}
 .dlgbody{overflow:auto;white-space:pre-wrap;line-height:1.4;flex:1;padding:0 12px 8px;-webkit-overflow-scrolling:touch}
-.dlgfoot{padding:8px 12px 12px;flex-shrink:0}
-#btnCloseSum,.btnCloseTop{min-height:44px;padding:8px 14px;flex:0 0 auto}
-#btnCloseSum{width:100%}
+.dlgfoot{padding:8px 12px 12px;flex-shrink:0;display:flex;gap:8px}
+#btnCloseSum,.btnCloseTop,#btnSpeakSum{min-height:44px;padding:8px 14px;flex:1}
 #thumbOv{display:none;position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.58);align-items:center;justify-content:center;pointer-events:none}
 #thumbOv.on{display:flex;pointer-events:auto}
 #thumbOv img{max-width:min(92vw,640px);width:92vw;max-height:72vh;object-fit:contain;border-radius:10px;border:1px solid var(--gold);box-shadow:0 10px 36px rgba(0,0,0,.55);background:#1a1410}
@@ -70,7 +69,7 @@ button.item.active{background:#4a372b;color:var(--gold)}
 </head>
 <body>
 <header>
-  <h1>Tadatmya Vedanta Player <span class="ver">V1.73</span></h1>
+  <h1>Tadatmya Vedanta Player <span class="ver">V1.74</span></h1>
   <h2>Sammlung der veröffentlichten Sonntags-Vorträge von Rishi Sahadev (<a href="https://t.me/+7qSv0wH6VkE0Njky" target="_blank" rel="noopener">Telegram</a>) und eine Auswahl verschiedener Satsangs von Swami Revatikaanta und Pandit Mayuran zu diesem wichtigen Thema</h2>
   <div class="meta" id="zeitraum">Zeitraum: 13.12.2025 – 25.09.2026</div>
   <div class="cover-gap" aria-hidden="true"></div>
@@ -114,7 +113,10 @@ button.item.active{background:#4a372b;color:var(--gold)}
     <div class="dlghead"><h3 id="dlgT"></h3><button type="button" class="gold btnCloseTop" onclick="hideSum()">Schließen</button></div>
     <p id="dlgTags" class="tags" style="padding:0 12px;"></p>
     <div class="dlgbody" id="dlgB"></div>
-    <div class="dlgfoot"><button type="button" id="btnCloseSum">Schließen</button></div>
+    <div class="dlgfoot">
+      <button type="button" class="gold" id="btnSpeakSum" onclick="toggleExcerptSpeak()">Vorlesen</button>
+      <button type="button" id="btnCloseSum" onclick="hideSum()">Schließen</button>
+    </div>
   </div>
 </div>
 <script src="lesungen.js?v=167"></script>
@@ -124,6 +126,7 @@ button.item.active{background:#4a372b;color:var(--gold)}
 <script src="resume-fix.js?v=167"></script>
 <script src="thumb-overlay.js?v=170"></script>
 <script src="vol-norm.js?v=173a"></script>
+<script src="excerpt-tts.js?v=174"></script>
 
 <footer class="fb">
   <button type="button" class="fb-link" onclick="openFb()">Feedback und Anregungen →</button>
