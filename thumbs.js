@@ -34,8 +34,13 @@ window.TV_THUMBS={
   33:{yt:"GS2DYnsAcbY"}
 };
 window.TV_THUMBS_FILE={
+  "EP27":{yt:"HzbjM5fDrfM"},
+  "Sampradaya Game":{yt:"HzbjM5fDrfM"},
   "EP28":{yt:"DbsMnaqQzP0"},
-  "EP29":{yt:"p3FPW368U0M"}
+  "EP29":{yt:"p3FPW368U0M"},
+  "Modern Times":{yt:"_jg8TOeeke8"},
+  "Siddhanta for Modern":{yt:"_jg8TOeeke8"},
+  "Siddhānta for Modern":{yt:"_jg8TOeeke8"}
 };
 function tvThumbUrl(yt){
   if(!yt) return "cover.jpg";
