@@ -1,17 +1,5 @@
 (function(){
-  const STORE="tv-thumb-shown-v1";
-  function loadShown(){
-    try{
-      const raw=JSON.parse(sessionStorage.getItem(STORE)||"{}");
-      return raw && typeof raw==="object" ? raw : {};
-    }catch(e){ return {}; }
-  }
-  function markShown(key){
-    const m=loadShown();
-    m[key]=1;
-    sessionStorage.setItem(STORE,JSON.stringify(m));
-  }
-  function wasShown(key){ return !!loadShown()[key]; }
+  const shown={};
   function lectureKey(L){
     if(!L) return "";
     if(L.nr) return "nr-"+L.nr;
@@ -34,25 +22,27 @@
   }
   function showThumb(L){
     const key=lectureKey(L);
-    if(!key || wasShown(key)) return;
+    if(!key || shown[key]) return;
     const el=document.getElementById("thumbOv");
     const img=document.getElementById("thumbOvImg");
     if(!el||!img) return;
-    markShown(key);
+    shown[key]=1;
     img.src=thumbSrc(L);
     el.classList.add("on");
     clearTimeout(el._tvThumbT);
     el._tvThumbT=setTimeout(hideThumb, 5000);
   }
-  const a=document.getElementById("a");
-  if(!a) return;
-  a.addEventListener("play", function(){
-    if(typeof sichtbar==="undefined" || typeof i==="undefined" || i<0) return;
-    const L=sichtbar[i];
-    if(!L) return;
-    if((a.currentTime||0)>6) return;
-    showThumb(L);
-  });
+  window.tvShowThumb=showThumb;
+  const orig=window.play;
+  if(typeof orig==="function"){
+    window.play=function(idx){
+      try{
+        const L=(typeof sichtbar!=="undefined" && sichtbar[idx]) ? sichtbar[idx] : null;
+        if(L) showThumb(L);
+      }catch(e){}
+      return orig.apply(this, arguments);
+    };
+  }
   const ov=document.getElementById("thumbOv");
   if(ov) ov.addEventListener("click", hideThumb);
 })();
