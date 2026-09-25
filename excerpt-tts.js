@@ -2,7 +2,6 @@
   var speaking=false;
   var queue=[];
 
-  /* Deutsche Lautschrift für Browser-Stimmen. Längste Formen zuerst. */
   var SAY=[
     ["Tādātmya Vedānta","Ta-daat-mja We-daan-ta"],
     ["Tadatmya Vedanta","Ta-daat-mja We-daan-ta"],
@@ -78,7 +77,7 @@
     ["Sastra","Schaas-tra"],
     ["Smṛti","Smri-ti"],
     ["Anubhava","A-nu-bha-wa"],
-    ["Pratyabhijñā"," Prat-ja-bhidsch-nja"],
+    ["Pratyabhijñā","Prat-ja-bhidsch-nja"],
     ["Pratyabhijna","Prat-ja-bhidsch-nja"],
     ["Upādhi","U-paa-dhi"],
     ["Pratibimba","Pra-ti-bim-ba"],
@@ -126,6 +125,42 @@
     return t;
   }
 
+  function audioEl(){ return document.getElementById("a"); }
+  function pauseLecture(){
+    var a=audioEl();
+    try{ if(a && !a.paused) a.pause(); }catch(e){}
+  }
+  function lockPlayer(){
+    pauseLecture();
+    var ids=["btnPlay","btnResume"];
+    var i, el;
+    for(i=0;i<ids.length;i++){
+      el=document.getElementById(ids[i]);
+      if(el) el.disabled=true;
+    }
+    var err=document.getElementById("err");
+    if(err) err.textContent="Vortrag pausiert — Play nach dem Vorlesen.";
+  }
+  function unlockPlayer(){
+    var p=document.getElementById("btnPlay"); if(p) p.disabled=false;
+    var r=document.getElementById("btnResume"); if(r) r.disabled=false;
+    var err=document.getElementById("err");
+    if(err && /Vortrag pausiert/.test(err.textContent||"")) err.textContent="";
+  }
+  function blockIfSpeaking(name){
+    var orig=window[name];
+    if(typeof orig!=="function") return;
+    window[name]=function(){
+      if(speaking){
+        pauseLecture();
+        var err=document.getElementById("err");
+        if(err) err.textContent="Erst Vorlesen beenden (Stop), dann Play.";
+        return;
+      }
+      return orig.apply(this, arguments);
+    };
+  }
+
   function btn(){ return document.getElementById("btnSpeakSum"); }
   function paint(){
     var b=btn();
@@ -137,6 +172,7 @@
     speaking=false;
     queue=[];
     try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+    unlockPlayer();
     paint();
   }
   function pickVoice(){
@@ -169,6 +205,7 @@
   function speakNext(){
     if(!speaking || !queue.length){
       speaking=false;
+      unlockPlayer();
       paint();
       return;
     }
@@ -194,13 +231,10 @@
       if(err2) err2.textContent="Excerpt noch nicht geladen.";
       return;
     }
-    try{
-      var a=document.getElementById("a");
-      if(a && !a.paused) a.pause();
-    }catch(e){}
     stop();
     queue=chunks(phonetic(t));
     speaking=true;
+    lockPlayer();
     paint();
     try{ speechSynthesis.resume(); }catch(e){}
     speakNext();
@@ -214,6 +248,15 @@
     stop();
     if(typeof prevHide==="function") return prevHide.apply(this, arguments);
   };
+  ["play","toggle","playNr","resumeNow","prev","next","playFromSession"].forEach(blockIfSpeaking);
+  var a=audioEl();
+  if(a){
+    a.addEventListener("play", function(){
+      if(speaking){
+        try{ a.pause(); }catch(e){}
+      }
+    });
+  }
   document.addEventListener("visibilitychange", function(){
     if(document.hidden) try{ speechSynthesis.pause(); }catch(e){}
   });
