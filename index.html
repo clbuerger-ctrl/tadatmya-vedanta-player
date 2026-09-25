@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
-<title>Tadatmya Vedanta Player V1.69</title>
+<title>Tadatmya Vedanta Player V1.70</title>
 <style>
 :root{--bg:#1a1410;--gold:#c9a36a;--text:#f3e6d0;--muted:#b7a48c;--card:#2a211b}
 *{box-sizing:border-box}
@@ -40,8 +40,10 @@ input[type=search]{flex:1;min-width:140px}
 button{background:#4a372b;color:var(--text);border:1px solid #6b5340;padding:4px 9px}
 button.gold{background:#8b6914;border-color:#c9a36a}
 button:disabled{opacity:.45}
-.list{margin:8px 12px 24px;border:1px solid #5a4634;border-radius:10px;position:relative;z-index:5;touch-action:pan-y}
-button.item{display:block;width:100%;margin:0;text-align:left;background:transparent;color:inherit;font:inherit;border:none;border-bottom:1px solid #3d2f26;border-radius:0;min-height:0;padding:8px 12px;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:pan-y}
+.list{margin:8px 12px 24px;border:1px solid #5a4634;border-radius:10px;position:relative;z-index:5;touch-action:pan-y;display:grid;grid-template-columns:1fr}
+@media (min-width:700px){.list{grid-template-columns:1fr 1fr}}
+@media (min-width:1100px){.list{grid-template-columns:1fr 1fr 1fr}}
+button.item{display:block;width:100%;height:100%;margin:0;text-align:left;background:transparent;color:inherit;font:inherit;border:none;border-bottom:1px solid #3d2f26;border-right:1px solid #3d2f26;border-radius:0;min-height:0;padding:8px 12px;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:pan-y}
 button.item:hover{background:#3a2e26}
 button.item.active{background:#4a372b;color:var(--gold)}
 .tags{color:var(--muted);font-size:.74rem;margin-top:2px;pointer-events:none}
@@ -68,7 +70,7 @@ button.item.active{background:#4a372b;color:var(--gold)}
 </head>
 <body>
 <header>
-  <h1>Tadatmya Vedanta Player <span class="ver">V1.69</span></h1>
+  <h1>Tadatmya Vedanta Player <span class="ver">V1.70</span></h1>
   <h2>Sammlung der veröffentlichten Sonntags-Vorträge von Rishi Sahadev (<a href="https://t.me/+7qSv0wH6VkE0Njky" target="_blank" rel="noopener">Telegram</a>) und eine Auswahl verschiedener Satsangs von Swami Revatikaanta und Pandit Mayuran zu diesem wichtigen Thema</h2>
   <div class="meta" id="zeitraum">Zeitraum: 13.12.2025 – 25.09.2026</div>
   <div class="cover-gap" aria-hidden="true"></div>
@@ -119,7 +121,7 @@ button.item.active{background:#4a372b;color:var(--gold)}
 <script src="thumbs.js?v=169"></script>
 <script src="app.js?v=166"></script>
 <script src="resume-fix.js?v=167"></script>
-<script src="thumb-overlay.js?v=168"></script>
+<script src="thumb-overlay.js?v=170"></script>
 
 <footer class="fb">
   <button type="button" class="fb-link" onclick="openFb()">Feedback und Anregungen →</button>
