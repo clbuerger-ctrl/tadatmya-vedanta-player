@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
-<title>Tadatmya Vedanta Player V1.67</title>
+<title>Tadatmya Vedanta Player V1.68</title>
 <style>
 :root{--bg:#1a1410;--gold:#c9a36a;--text:#f3e6d0;--muted:#b7a48c;--card:#2a211b}
 *{box-sizing:border-box}
@@ -55,6 +55,9 @@ button.item.active{background:#4a372b;color:var(--gold)}
 .dlgfoot{padding:8px 12px 12px;flex-shrink:0}
 #btnCloseSum,.btnCloseTop{min-height:44px;padding:8px 14px;flex:0 0 auto}
 #btnCloseSum{width:100%}
+#thumbOv{display:none;position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.58);align-items:center;justify-content:center;pointer-events:none}
+#thumbOv.on{display:flex;pointer-events:auto}
+#thumbOv img{max-width:min(92vw,640px);width:92vw;max-height:72vh;object-fit:contain;border-radius:10px;border:1px solid var(--gold);box-shadow:0 10px 36px rgba(0,0,0,.55);background:#1a1410}
 .fb{text-align:center;padding:16px 12px 28px;border-top:1px solid #3d2f26;margin-top:8px}
 .fb-link{color:var(--gold);cursor:pointer;font-size:.95rem;background:none;border:none;padding:0;min-height:auto}
 #fbDlg input,#fbDlg textarea{width:100%;padding:8px;border:1px solid #5a4634;background:#3a2e26;color:var(--text);border-radius:7px;font-family:Georgia,serif}
@@ -65,7 +68,7 @@ button.item.active{background:#4a372b;color:var(--gold)}
 </head>
 <body>
 <header>
-  <h1>Tadatmya Vedanta Player <span class="ver">V1.67</span></h1>
+  <h1>Tadatmya Vedanta Player <span class="ver">V1.68</span></h1>
   <h2>Sammlung der veröffentlichten Sonntags-Vorträge von Rishi Sahadev (<a href="https://t.me/+7qSv0wH6VkE0Njky" target="_blank" rel="noopener">Telegram</a>) und eine Auswahl verschiedener Satsangs von Swami Revatikaanta und Pandit Mayuran zu diesem wichtigen Thema</h2>
   <div class="meta" id="zeitraum">Zeitraum: 13.12.2025 – 25.09.2026</div>
   <div class="cover-gap" aria-hidden="true"></div>
@@ -102,6 +105,7 @@ button.item.active{background:#4a372b;color:var(--gold)}
   <div class="err" id="err"></div>
 </div>
 <div class="list" id="list"></div>
+<div id="thumbOv" aria-hidden="true"><img id="thumbOvImg" alt=""></div>
 <div class="overlay" id="dlg">
   <div class="panel">
     <div class="dlghead"><h3 id="dlgT"></h3><button type="button" class="gold btnCloseTop" onclick="hideSum()">Schließen</button></div>
@@ -112,8 +116,10 @@ button.item.active{background:#4a372b;color:var(--gold)}
 </div>
 <script src="lesungen.js?v=167"></script>
 <script src="zeitraum.js?v=167"></script>
+<script src="thumbs.js?v=168"></script>
 <script src="app.js?v=166"></script>
 <script src="resume-fix.js?v=167"></script>
+<script src="thumb-overlay.js?v=168"></script>
 
 <footer class="fb">
   <button type="button" class="fb-link" onclick="openFb()">Feedback und Anregungen →</button>
