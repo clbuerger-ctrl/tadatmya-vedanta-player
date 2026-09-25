@@ -1,5 +1,5 @@
-/* Live-Lautstärkenormierung: Compressor + langsames AGC.
-   Dateien werden nicht umgeschrieben. Messung nur während des Hörens. */
+/* Live-Lautstärkenormierung nur auf Wunsch.
+   Standard AUS, damit Windows/Dropbox die MP3s normal laden. */
 (function(){
   var KEY="tv-vol-norm-v1";
   var GAIN_KEY="tv-vol-gain-v1";
@@ -11,7 +11,7 @@
   var curGain=1;
 
   function enabled(){
-    try{ return localStorage.getItem(KEY)!=="0"; }catch(e){ return true; }
+    try{ return localStorage.getItem(KEY)==="1"; }catch(e){ return false; }
   }
   function setEnabled(on){
     try{ localStorage.setItem(KEY,on?"1":"0"); }catch(e){}
@@ -148,22 +148,12 @@
       applyMode();
     }
   };
-  window.tvVolNormOnPlay=onPlayStart;
-  document.addEventListener("DOMContentLoaded", function(){
-    paint();
-    var a=document.getElementById("a");
-    if(!a) return;
+  document.addEventListener("DOMContentLoaded", paint);
+  if(document.readyState!=="loading") paint();
+  var a=document.getElementById("a");
+  if(a){
     a.addEventListener("play", onPlayStart);
     a.addEventListener("pause", stopAgc);
     a.addEventListener("ended", stopAgc);
-  });
-  if(document.readyState!=="loading"){
-    paint();
-    var a0=document.getElementById("a");
-    if(a0){
-      a0.addEventListener("play", onPlayStart);
-      a0.addEventListener("pause", stopAgc);
-      a0.addEventListener("ended", stopAgc);
-    }
   }
 })();
