@@ -31,7 +31,8 @@ window.TV_THUMBS={
   30:{yt:"otCTcblX4ZQ"},
   31:{yt:"F4sG8NK0eCo"},
   32:{yt:"BDb-dPKlQfE"},
-  33:{yt:"GS2DYnsAcbY"}
+  33:{yt:"GS2DYnsAcbY"},
+  35:{yt:"j87gkTUOkOc"}
 };
 window.TV_THUMBS_FILE={
   "EP27":{yt:"HzbjM5fDrfM"},
