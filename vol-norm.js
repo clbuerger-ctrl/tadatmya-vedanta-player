@@ -34,9 +34,10 @@
     var b=document.getElementById("btnVolNorm");
     if(!b) return;
     var on=enabled();
+    b.textContent=on?"Vol Norm an":"Vol Norm aus";
     b.classList.toggle("gold",on);
     b.setAttribute("aria-pressed",on?"true":"false");
-    b.title=on?"Lautstärke-Angleich an (Compressor + AGC)":"Lautstärke-Angleich aus";
+    b.title=on?"Lautstärke-Angleich an":"Lautstärke-Angleich aus";
   }
   function ensureGraph(){
     var el=document.getElementById("a");
