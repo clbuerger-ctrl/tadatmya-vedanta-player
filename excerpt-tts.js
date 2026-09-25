@@ -2,6 +2,130 @@
   var speaking=false;
   var queue=[];
 
+  /* Deutsche Lautschrift für Browser-Stimmen. Längste Formen zuerst. */
+  var SAY=[
+    ["Tādātmya Vedānta","Ta-daat-mja We-daan-ta"],
+    ["Tadatmya Vedanta","Ta-daat-mja We-daan-ta"],
+    ["Tādātmya-Vedānta","Ta-daat-mja We-daan-ta"],
+    ["Tādātmya-Anubhava","Ta-daat-mja A-nu-bha-wa"],
+    ["Tadatmya-Anubhava","Ta-daat-mja A-nu-bha-wa"],
+    ["Hari Bhakta Sampradāya","Ha-ri Bhak-ti Sam-pra-daa-ja"],
+    ["Hari Bhakta Sampradaya","Ha-ri Bhak-ti Sam-pra-daa-ja"],
+    ["Paramahamsa","Pa-ra-ma-ham-sa"],
+    ["Vishwananda","Wisch-wa-nan-da"],
+    ["Viśwananda","Wisch-wa-nan-da"],
+    ["Sahadevananda","Sa-ha-de-wa-nan-da"],
+    ["Revatikaanta","Re-wa-ti-kaan-ta"],
+    ["Revatikanta","Re-wa-ti-kaan-ta"],
+    ["Mayuran","Ma-ju-ran"],
+    ["Tādātmya","Ta-daat-mja"],
+    ["Tadatmya","Ta-daat-mja"],
+    ["Vedānta","We-daan-ta"],
+    ["Vedanta","We-daan-ta"],
+    ["Siddhānta","Sid-dhaan-ta"],
+    ["Siddhanta","Sid-dhaan-ta"],
+    ["Sampradāya","Sam-pra-daa-ja"],
+    ["Sampradaya","Sam-pra-daa-ja"],
+    ["Śrī Hari","Schrii Ha-ri"],
+    ["Sri Hari","Schrii Ha-ri"],
+    ["Śrī Kṛṣṇa","Schrii Krish-na"],
+    ["Bhagavān","Bha-ga-waan"],
+    ["Bhagavan","Bha-ga-waan"],
+    ["Nārāyaṇa","Naa-raa-ja-na"],
+    ["Narayana","Naa-raa-ja-na"],
+    ["Kṛṣṇa","Krish-na"],
+    ["Krishna","Krish-na"],
+    ["Caitanya","Tschai-tan-ja"],
+    ["Satguru","Sat-gu-ru"],
+    ["Ācārya","Aa-tschaar-ja"],
+    ["Acharya","Aa-tschaar-ja"],
+    ["Ātmā-śakti","Aat-maa Schak-ti"],
+    ["Atma-Shakti","Aat-maa Schak-ti"],
+    ["Māyā-śakti","Maa-jaa Schak-ti"],
+    ["Maya-Shakti","Maa-jaa Schak-ti"],
+    ["Ātmā","Aat-maa"],
+    ["Atma","Aat-maa"],
+    ["Jīvātmā","Dschii-waat-maa"],
+    ["Jivatma","Dschii-waat-maa"],
+    ["Jīva","Dschii-wa"],
+    ["Jiva","Dschii-wa"],
+    ["Avidyā","A-wid-jaa"],
+    ["Avidya","A-wid-jaa"],
+    ["Vidyā","Wid-jaa"],
+    ["Bhakti","Bhak-ti"],
+    ["Prema","Pre-ma"],
+    ["Māyā","Maa-jaa"],
+    ["Maya","Maa-jaa"],
+    ["Prakṛti","Pra-kri-ti"],
+    ["Prakriti","Pra-kri-ti"],
+    ["Antaḥkaraṇa","An-tah-ka-ra-na"],
+    ["Antahkarana","An-tah-ka-ra-na"],
+    ["Ahaṅkāra","A-hang-kaa-ra"],
+    ["Ahankara","A-hang-kaa-ra"],
+    ["Buddhi","Bud-dhi"],
+    ["Manas","Ma-nas"],
+    ["Citta","Tschit-ta"],
+    ["Citti","Tschit-ti"],
+    ["Pramāṇa","Pra-maa-na"],
+    ["Pramana","Pra-maa-na"],
+    ["Pratyakṣa","Prat-jak-scha"],
+    ["Anumāna","A-nu-maa-na"],
+    ["Śbda","Schab-da"],
+    ["Sabda","Schab-da"],
+    ["Śruti","Schru-ti"],
+    ["Sruti","Schru-ti"],
+    ["Śāstra","Schaas-tra"],
+    ["Sastra","Schaas-tra"],
+    ["Smṛti","Smri-ti"],
+    ["Anubhava","A-nu-bha-wa"],
+    ["Pratyabhijñā"," Prat-ja-bhidsch-nja"],
+    ["Pratyabhijna","Prat-ja-bhidsch-nja"],
+    ["Upādhi","U-paa-dhi"],
+    ["Pratibimba","Pra-ti-bim-ba"],
+    ["Bimba","Bim-ba"],
+    ["śakti","Schak-ti"],
+    ["Shakti","Schak-ti"],
+    ["Guṇa","Gu-na"],
+    ["Guna","Gu-na"],
+    ["Sattva","Sat-twa"],
+    ["Rajas","Ra-dschas"],
+    ["Tamas","Ta-mas"],
+    ["Vyūha","Wjuu-ha"],
+    ["Vyuha","Wjuu-ha"],
+    ["Ādi-puruṣa","Aa-di Pu-ru-scha"],
+    ["Adi-purusa","Aa-di Pu-ru-scha"],
+    ["Antaryāmī","An-tar-jaa-mii"],
+    ["Sadāśiva","Sa-daa-schi-wa"],
+    ["Sadasiva","Sa-daa-schi-wa"],
+    ["Vaiṣṇava","Waish-na-wa"],
+    ["Vaishnava","Waish-na-wa"],
+    ["Mukhyārtha","Muk-hjaar-tha"],
+    ["Lakṣaṇā","Lak-scha-naa"],
+    ["Laksana","Lak-scha-naa"],
+    ["Niṣkāma","Nisch-kaa-ma"],
+    ["Niskama","Nisch-kaa-ma"],
+    ["Jñāna","Gjaa-na"],
+    ["Jnana","Gjaa-na"],
+    ["Dhyāna","Dhjaa-na"],
+    ["Dhyana","Dhjaa-na"],
+    ["Karma-yoga","Kar-ma Jo-ga"],
+    ["Bhakti-yoga","Bhak-ti Jo-ga"],
+    ["Guruji","Gu-ru-dschi"],
+    ["Rishi","Ri-schi"],
+    ["Ṛṣi","Ri-schi"]
+  ];
+
+  function phonetic(text){
+    var t=text||"";
+    var i;
+    for(i=0;i<SAY.length;i++){
+      t=t.replace(new RegExp(SAY[i][0].replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"gi"), SAY[i][1]);
+    }
+    t=t.replace(/[āĀ]/g,"aa").replace(/[īĪ]/g,"ii").replace(/[ūŪ]/g,"uu");
+    t=t.replace(/[śŚṣṢ]/g,"sch").replace(/[ṇṆ]/g,"n").replace(/[ṛṚ]/g,"ri");
+    return t;
+  }
+
   function btn(){ return document.getElementById("btnSpeakSum"); }
   function paint(){
     var b=btn();
@@ -50,7 +174,7 @@
     }
     var u=new SpeechSynthesisUtterance(queue.shift());
     u.lang="de-DE";
-    u.rate=0.95;
+    u.rate=0.88;
     var v=pickVoice();
     if(v) u.voice=v;
     u.onend=function(){ speakNext(); };
@@ -75,7 +199,7 @@
       if(a && !a.paused) a.pause();
     }catch(e){}
     stop();
-    queue=chunks(t);
+    queue=chunks(phonetic(t));
     speaking=true;
     paint();
     try{ speechSynthesis.resume(); }catch(e){}
