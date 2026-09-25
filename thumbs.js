@@ -32,6 +32,7 @@ window.TV_THUMBS={
   31:{yt:"F4sG8NK0eCo"},
   32:{yt:"BDb-dPKlQfE"},
   33:{yt:"GS2DYnsAcbY"},
+  34:{yt:"50niMJELT4I"},
   35:{yt:"j87gkTUOkOc"}
 };
 window.TV_THUMBS_FILE={
