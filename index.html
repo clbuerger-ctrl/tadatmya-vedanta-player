@@ -7,26 +7,22 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
-<title>Tadatmya Vedanta Player V1.81</title>
+<title>Tadatmya Vedanta Player V1.82</title>
 <style>
 :root{--bg:#1a1410;--gold:#c9a36a;--text:#f3e6d0;--muted:#b7a48c;--card:#2a211b}
 *{box-sizing:border-box}
 body{margin:0;font-family:Georgia,serif;background:var(--bg);color:var(--text)}
 header{padding:12px 16px 8px;text-align:center}
 .cover-gap{display:block;height:1.6rem;width:100%;clear:both}
-.cover-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;justify-content:center;margin-top:1.6rem;clear:both}
 .cover{display:block;width:90vw;max-width:90vw;height:auto;margin:0 auto 8px;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.45);object-fit:contain}
 @media (min-width:801px){
   .cover{width:auto;height:50vh;max-height:50vh;max-width:min(90vw,46rem)}
 }
-
 h1{margin:0 auto;max-width:46rem;font-size:2rem;font-weight:normal;color:var(--gold);text-align:center;line-height:1.2}
 .ver{display:inline-block;margin-left:.35em;font-size:.42em;font-weight:normal;vertical-align:baseline;opacity:.72;letter-spacing:.02em}
 @media (min-width:801px){h1{font-size:2.35rem}}
 h2{margin:10px auto 0;max-width:40rem;font-size:1rem;font-weight:normal;line-height:1.45;text-align:center}h2 a{color:var(--gold)}
 .meta{color:var(--muted);font-size:.85rem;margin:8px auto 0;text-align:center}
-.cover-rule{border:0;border-top:1px solid #c9a36a;width:min(92%,42rem);margin:16px auto 12px;opacity:.9;display:block;height:0}
-.done{color:var(--gold);font-weight:normal;opacity:1;margin-left:.2em}
 #playerBar{position:sticky;top:0;z-index:30;background:var(--bg);padding-bottom:4px;border-bottom:1px solid #3d2f26}
 .now{padding:4px 12px;min-height:1.2em}
 audio{width:calc(100% - 24px);margin:4px 12px;height:36px}
@@ -69,7 +65,7 @@ button.item.active{background:#4a372b;color:var(--gold)}
 </head>
 <body>
 <header>
-  <h1>Tadatmya Vedanta Player <span class="ver">V1.81</span></h1>
+  <h1>Tadatmya Vedanta Player <span class="ver">V1.82</span></h1>
   <h2>Sammlung der veröffentlichten Sonntags-Vorträge von Rishi Sahadev (<a href="https://t.me/+7qSv0wH6VkE0Njky" target="_blank" rel="noopener">Telegram</a>) und eine Auswahl verschiedener Satsangs von Swami Revatikaanta und Pandit Mayuran zu diesem wichtigen Thema</h2>
   <div class="meta" id="zeitraum">Zeitraum: 13.12.2025 – 25.09.2026</div>
   <div class="cover-gap" aria-hidden="true"></div>
@@ -113,7 +109,12 @@ button.item.active{background:#4a372b;color:var(--gold)}
     <div class="dlghead"><h3 id="dlgT"></h3><button type="button" class="gold btnCloseTop" onclick="hideSum()">Schließen</button></div>
     <p id="dlgTags" class="tags" style="padding:0 12px;"></p>
     <div class="dlgbody" id="dlgB"></div>
-    <div class="dlgfoot">
+    <div class="dlgfoot" style="flex-wrap:wrap;align-items:center">
+      <select id="voicePick" aria-label="Sprecher" style="flex:1;min-width:9rem;min-height:44px;background:#3a2e26;color:var(--text);border:1px solid #5a4634;border-radius:7px;padding:6px 8px">
+        <option value="ruhig">Sprecher 1 · ruhig</option>
+        <option value="klar">Sprecher 2 · klar</option>
+        <option value="warm">Sprecher 3 · warm</option>
+      </select>
       <button type="button" class="gold" id="btnSpeakSum" onclick="toggleExcerptSpeak()">Vorlesen</button>
       <button type="button" id="btnCloseSum" onclick="hideSum()">Schließen</button>
     </div>
@@ -127,8 +128,7 @@ button.item.active{background:#4a372b;color:var(--gold)}
 <script src="thumb-overlay.js?v=170"></script>
 <script src="vol-norm.js?v=177"></script>
 <script src="excerpt-format.js?v=181"></script>
-<script src="excerpt-tts.js?v=181"></script>
-
+<script src="excerpt-tts.js?v=182"></script>
 <footer class="fb">
   <button type="button" class="fb-link" onclick="openFb()">Feedback und Anregungen →</button>
 </footer>
@@ -156,8 +156,6 @@ button.item.active{background:#4a372b;color:var(--gold)}
 <script src="cover-rule.js?v=160"></script>
 <script src="cover-fx.js?v=160"></script>
 <script src="live.js?v=141"></script>
-
-
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){})</script>
 </body>
 </html>
