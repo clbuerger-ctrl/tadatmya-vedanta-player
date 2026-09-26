@@ -224,8 +224,14 @@
       if(err) err.textContent="Dieser Browser kann nicht vorlesen.";
       return;
     }
-    var body=document.getElementById("dlgB");
-    var t=body ? (body.textContent||"").trim() : "";
+    var t=window.tvExcerptSpeak||"";
+    if(!t){
+      var h=document.getElementById("dlgT");
+      var au=document.getElementById("dlgTags");
+      var body=document.getElementById("dlgB");
+      t=[h&&h.textContent, au&&au.textContent, body&&body.textContent].filter(Boolean).join(". ");
+    }
+    t=(t||"").trim();
     if(!t || /wird geladen/i.test(t) || /Kein Text/i.test(t)){
       var err2=document.getElementById("err");
       if(err2) err2.textContent="Excerpt noch nicht geladen.";
