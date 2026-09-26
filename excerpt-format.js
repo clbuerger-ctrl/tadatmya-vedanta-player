@@ -12,6 +12,7 @@
     var t=norm(line);
     if(!t) return true;
     if(/^autor\s*:/i.test(t)) return true;
+    if(/^geschrieben von/i.test(t)) return true;
     if(/^datum\s*:/i.test(t)) return true;
     if(/^telegram/i.test(t)) return true;
     if(/^mitschrift\s*:/i.test(t)) return true;
@@ -40,9 +41,16 @@
   }
   function authorOf(raw, L){
     var file=((L&&L.file)||"")+" "+((L&&L.titel)||"");
-    if(/revatik/i.test(file)) return "Swami Revatikaanta";
-    if(/mayuran|siddhanta for/i.test(file)) return "Pandit Mayuran";
-    return "Hariharānanda";
+    if(/revatik/i.test(file)) return "gesprochen von Swami Revatikaanta";
+    if(/mayuran|siddhanta for/i.test(file)) return "gesprochen von Pandit Mayuran";
+    return "geschrieben von Hariharānanda";
+  }
+  function speakHash(s){
+    return String(s||"")
+      .replace(/#\s*(\d+)/g," Nummer $1 ")
+      .replace(/#/g,"")
+      .replace(/\s+/g," ")
+      .trim();
   }
   function bodyOf(raw, heading){
     var lines=(raw||"").replace(/\r\n/g,"\n").split("\n");
@@ -62,8 +70,7 @@
     }
     while(out.length && !out[0]) out.shift();
     while(out.length && !out[out.length-1]) out.pop();
-    var text=out.join("\n").replace(/\n{3,}/g,"\n\n");
-    return text;
+    return out.join("\n").replace(/\n{3,}/g,"\n\n");
   }
   function formatExcerpt(raw, L){
     var heading=headingOf(raw, L);
@@ -74,7 +81,7 @@
       author: author,
       body: body,
       display: heading+"\n"+author+"\n\n"+body,
-      speak: heading+". "+author+". "+body
+      speak: speakHash(heading)+". "+author+". "+body
     };
   }
   window.tvFormatExcerpt=formatExcerpt;
