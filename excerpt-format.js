@@ -39,13 +39,10 @@
     return L && L.titel ? L.titel : "Excerpt";
   }
   function authorOf(raw, L){
-    var m=(raw||"").match(/Autor:\s*([^\n]+)/i);
-    var a=m?norm(m[1]).replace(/\(.*?\)/g,"").trim():"";
     var file=((L&&L.file)||"")+" "+((L&&L.titel)||"");
     if(/revatik/i.test(file)) return "Swami Revatikaanta";
     if(/mayuran|siddhanta for/i.test(file)) return "Pandit Mayuran";
-    if(/harihar/i.test(a) || (L && L.nr)) return "Rishi Sahadevananda";
-    return a || "Rishi Sahadevananda";
+    return "Hariharānanda";
   }
   function bodyOf(raw, heading){
     var lines=(raw||"").replace(/\r\n/g,"\n").split("\n");
@@ -86,12 +83,8 @@
   window.showSum=function(){
     if(typeof origShow!=="function") return;
     origShow.apply(this, arguments);
-    var L=(window.sichtbar && window.i>=0)?window.sichtbar[window.i]:null;
-    if(!L && typeof loadLectureText==="function"){
-      try{
-        L=(typeof sichtbar!=="undefined" && i>=0)?sichtbar[i]:null;
-      }catch(e){}
-    }
+    var L=null;
+    try{ L=(typeof sichtbar!=="undefined" && typeof i==="number" && i>=0)?sichtbar[i]:null; }catch(e){}
     var wait=function(){
       var body=document.getElementById("dlgB");
       if(!body) return;
