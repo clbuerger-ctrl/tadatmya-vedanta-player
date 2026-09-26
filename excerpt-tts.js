@@ -8,6 +8,11 @@
     warm:{label:"Sprecher 3 \u00b7 warm", rate:0.78, pitch:0.92, prefer:/katja|hedda|helena|ingrid|gisela|female|weiblich/i}
   };
   var SAY=[
+    ["Icch\u0101-\u015bakti","Itscha Schakti"],["Iccha-Sakti","Itscha Schakti"],["Iccha-Shakti","Itscha Schakti"],
+    ["Icch\u0101","Itscha"],["Iccha","Itscha"],
+    ["Kriy\u0101-\u015bakti","Krijaa Schakti"],["Kriya-Sakti","Krijaa Schakti"],["Kriya-Shakti","Krijaa Schakti"],
+    ["J\u00f1\u0101na-\u015bakti","Gjaana Schakti"],["Jnana-Sakti","Gjaana Schakti"],
+    ["Sakti","Schakti"],["\u015akti","Schakti"],["\u015bakti","Schakti"],["Shakti","Schakti"],
     ["T\u0101d\u0101tmya Ved\u0101nta","Tadaatmja Wedaanta"],["Tadatmya Vedanta","Tadaatmja Wedaanta"],
     ["Hari Bhakta Samprad\u0101ya","Hari Bhakta Sampradaaja"],["Harihar\u0101nanda","Hariharaananda"],["Hariharananda","Hariharaananda"],
     ["Paramahamsa Vishwananda","Paramahamsa Wischwananda"],["Vishwananda","Wischwananda"],["Sahadevananda","Sahadewananda"],
@@ -18,7 +23,7 @@
     ["Pratyabhij\u00f1\u0101","Pratjabhidschnja"],["J\u00f1\u0101na-yoga","Gjaana Joga"],["Dhy\u0101na-yoga","Dhjaana Joga"],
     ["Karma-yoga","Karma Joga"],["Bhakti-yoga","Bhakti Joga"],["Pram\u0101\u1e47a","Pramaana"],["\u015aabda","Schabda"],
     ["\u015a\u0101stra","Schaastra"],["Avidy\u0101","Awidjaa"],["Avidya","Awidjaa"],["\u0100tm\u0101","Aatmaa"],["Atma","Aatmaa"],
-    ["J\u012bva","Dschiiwa"],["Jiva","Dschiiwa"],["M\u0101y\u0101","Maajaa"],["Maya","Maajaa"],["\u015bakti","Schakti"],["Shakti","Schakti"],
+    ["J\u012bva","Dschiiwa"],["Jiva","Dschiiwa"],["M\u0101y\u0101","Maajaa"],["Maya","Maajaa"],
     ["Citta","Tschitta"],["Siddh\u0101nta","Siddhaanta"],["Siddhanta","Siddhaanta"],["T\u0101d\u0101tmya","Tadaatmja"],["Tadatmya","Tadaatmja"],
     ["Ved\u0101nta","Wedaanta"],["Vedanta","Wedaanta"],["Guruji","Gurudschi"],["Rishi","Rischi"],["Satguru","Satguru"],
     ["\u015aiva","Schiwa"],["Shiva","Schiwa"],["Bhakti","Bhakti"],["Prema","Prema"],["Paramahamsa","Paramahamsa"]
