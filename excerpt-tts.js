@@ -8,11 +8,11 @@
     warm:{label:"Sprecher 3 \u00b7 warm", rate:0.78, pitch:0.92, prefer:/katja|hedda|helena|ingrid|gisela|female|weiblich/i}
   };
   var SAY=[
-    ["Icch\u0101-\u015bakti","Itscha Schakti"],["Iccha-Sakti","Itscha Schakti"],["Iccha-Shakti","Itscha Schakti"],
-    ["Icch\u0101","Itscha"],["Iccha","Itscha"],
+    ["Icch\u0101-\u015bakti","Itschaa Schakti"],["Iccha-Sakti","Itschaa Schakti"],["Iccha-Shakti","Itschaa Schakti"],["Iccha-sakti","Itschaa Schakti"],
+    ["Icch\u0101","Itschaa"],["Iccha","Itschaa"],["Icha","Itschaa"],
     ["Kriy\u0101-\u015bakti","Krijaa Schakti"],["Kriya-Sakti","Krijaa Schakti"],["Kriya-Shakti","Krijaa Schakti"],
     ["J\u00f1\u0101na-\u015bakti","Gjaana Schakti"],["Jnana-Sakti","Gjaana Schakti"],
-    ["Sakti","Schakti"],["\u015akti","Schakti"],["\u015bakti","Schakti"],["Shakti","Schakti"],
+    ["Sakti","Schakti"],["sakti","Schakti"],["\u015akti","Schakti"],["\u015bakti","Schakti"],["Shakti","Schakti"],
     ["T\u0101d\u0101tmya Ved\u0101nta","Tadaatmja Wedaanta"],["Tadatmya Vedanta","Tadaatmja Wedaanta"],
     ["Hari Bhakta Samprad\u0101ya","Hari Bhakta Sampradaaja"],["Harihar\u0101nanda","Hariharaananda"],["Hariharananda","Hariharaananda"],
     ["Paramahamsa Vishwananda","Paramahamsa Wischwananda"],["Vishwananda","Wischwananda"],["Sahadevananda","Sahadewananda"],
