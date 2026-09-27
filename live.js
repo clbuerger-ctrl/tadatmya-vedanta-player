@@ -3,6 +3,12 @@
   const TOPIC = "tvp/clbuerger/presence/v1/";
   const WINDOW_MS = 10 * 60 * 1000;
   const INTERVAL_MS = 75 * 1000;
+  // V1.84: pro Vortrag aktive Hörer/Leser (Heartbeat mit Vortrags-Schlüssel "l")
+  const LISTEN_MS = 3 * 60 * 1000;
+  const BEAT_MS = 60 * 1000;
+  let lastPub = 0;
+  let lastLec = "";
+  let lastSig = "";
   const peers = Object.create(null);
   let client = null;
   let timer = null;
@@ -48,7 +54,8 @@
     Object.keys(peers).forEach(function (id) {
       var p = peers[id];
       if (!p) return;
-      var label = [p.c, p.o].filter(Boolean).join(", ") || "unbekannt";
+      if (!p.c && !p.o) return;
+      var label = [p.c, p.o].filter(Boolean).join(", ");
       by[label] = (by[label] || 0) + 1;
     });
     return Object.keys(by)
@@ -80,6 +87,7 @@
 
   function draw() {
     paint();
+    refreshList();
   }
 
   window.__tvLivePaint = paint;
@@ -98,6 +106,7 @@
         peers[id] = {
           c: String(p.c || "").slice(0, 64),
           o: String(p.o || "").slice(0, 8),
+          l: String(p.l || "").slice(0, 40),
           t: +p.t || 0
         };
     } catch (e) {
@@ -106,22 +115,115 @@
     draw();
   }
 
+  function hashStr(s) {
+    s = String(s || "");
+    var h = 5381;
+    for (var k = 0; k < s.length; k++) h = ((h << 5) + h + s.charCodeAt(k)) | 0;
+    return (h >>> 0).toString(16);
+  }
+
+  function lecKey(L) {
+    if (!L) return "";
+    if (L.nr) return "n" + L.nr;
+    return "f" + hashStr(L.file || L.titel || "");
+  }
+
+  function curLecture() {
+    try {
+      if (typeof sichtbar === "undefined" || typeof i !== "number" || i < 0) return null;
+      return sichtbar[i] || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // aktiv = Audio läuft (dieser Vortrag) oder Excerpt-Fenster offen (Lesen)
+  function activeKey() {
+    var au = document.getElementById("a");
+    if (au && au.getAttribute("src") && !au.paused && !au.ended) return lecKey(curLecture());
+    var dlg = document.getElementById("dlg");
+    if (dlg && dlg.classList.contains("on")) {
+      var L = curLecture();
+      if (!L) {
+        try { L = (typeof sichtbar !== "undefined" && sichtbar[0]) || null; } catch (e) {}
+      }
+      return lecKey(L);
+    }
+    return "";
+  }
+
+  function liveCounts() {
+    prune();
+    var now = Date.now();
+    var by = Object.create(null);
+    Object.keys(peers).forEach(function (id) {
+      var p = peers[id];
+      if (!p || !p.l || now - p.t > LISTEN_MS) return;
+      by[p.l] = (by[p.l] || 0) + 1;
+    });
+    return by;
+  }
+
+  var countsCache = Object.create(null);
+  window.__tvLiveCount = function (L) {
+    var k = lecKey(L);
+    return (k && countsCache[k]) || 0;
+  };
+
+  var redrawT = 0;
+  function refreshList() {
+    var by = liveCounts();
+    var sig = Object.keys(by).sort().map(function (k) { return k + ":" + by[k]; }).join(",");
+    countsCache = by;
+    if (sig === lastSig) return;
+    lastSig = sig;
+    if (redrawT) return;
+    redrawT = setTimeout(function () {
+      redrawT = 0;
+      if (typeof window.zeichne === "function") try { window.zeichne(); } catch (e) {}
+    }, 250);
+  }
+
   function payload() {
+    lastLec = activeKey();
     return JSON.stringify({
       c: (city || "").slice(0, 64),
       o: (country || "").slice(0, 8),
+      l: lastLec,
       t: Date.now()
     });
   }
 
   function publish() {
     if (!client || !client.connected) return;
-    if (!city && !country) return;
     var body = payload();
+    lastPub = Date.now();
     try {
       client.publish(TOPIC + sid, body, { qos: 0, retain: true });
       applyPeer(sid, body);
     } catch (e) {}
+  }
+
+  // bei Zustandswechsel (Play/Pause/anderer Vortrag/Excerpt auf/zu) sofort melden
+  function maybePublish(force) {
+    var k = activeKey();
+    if (force || k !== lastLec || (k && Date.now() - lastPub > BEAT_MS)) publish();
+  }
+
+  function hookActivity() {
+    var au = document.getElementById("a");
+    if (au && !au.__tvLiveHook) {
+      au.__tvLiveHook = 1;
+      ["play", "playing", "pause", "ended", "emptied"].forEach(function (ev) {
+        au.addEventListener(ev, function () { maybePublish(false); });
+      });
+      au.addEventListener("timeupdate", function () { maybePublish(false); });
+    }
+    var dlg = document.getElementById("dlg");
+    if (dlg && !dlg.__tvLiveHook && window.MutationObserver) {
+      dlg.__tvLiveHook = 1;
+      new MutationObserver(function () { maybePublish(false); }).observe(dlg, { attributes: true, attributeFilter: ["class"] });
+    }
   }
 
   function clearMine() {
@@ -164,7 +266,8 @@
           publish();
           if (timer) clearInterval(timer);
           timer = setInterval(function () {
-            if (document.visibilityState === "hidden") return;
+            // im Hintergrund nur weiter melden, solange gehört wird
+            if (document.visibilityState === "hidden" && !activeKey()) return;
             publish();
             draw();
           }, INTERVAL_MS);
@@ -185,6 +288,8 @@
     if (window.__tvLiveOn) return;
     window.__tvLiveOn = 1;
     sid = sessionId();
+    hookActivity();
+    setInterval(refreshList, 30 * 1000);
     draw();
     fetch("https://get.geojs.io/v1/ip/geo.json")
       .then(function (r) {
