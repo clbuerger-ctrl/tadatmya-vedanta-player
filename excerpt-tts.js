@@ -30,11 +30,17 @@
   ];
   function speakReady(text){
     var t=String(text||"");
+    t=t.replace(/https?:\/\/\S+/gi," ");
+    t=t.replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\uFE0F\u200D]/gu," ");
+    t=t.replace(/[*_]+/g,"").replace(/[\u2192\u2190\u21D2\u2794]/g,", ").replace(/[\u2010\u2011]/g,"-");
+    t=t.replace(/\s&\s/g," und ").replace(/\(\s*(Teil\s*)?\d\s*\/\s*\d\s*\)/gi," ");
     t=t.replace(/#\s*(\d+)/g," Nummer $1 ").replace(/#/g,"");
     t=t.replace(/[\u2022\u25cf]/g,", ").replace(/[\u2013\u2014]/g,", ").replace(/\s+/g," ").trim();
     var i; for(i=0;i<SAY.length;i++){ t=t.replace(new RegExp(SAY[i][0].replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"gi"), SAY[i][1]); }
     t=t.replace(/[\u0101\u0100]/g,"aa").replace(/[\u012b\u012a]/g,"ii").replace(/[\u016b\u016a]/g,"uu");
     t=t.replace(/[\u015b\u015a\u1e63\u1e62]/g,"sch");
+    t=t.replace(/[\u1e5b\u1e5a\u1e5d\u1e5c]/g,"ri").replace(/[\u1e43\u1e42\u1e41\u1e40]/g,"m").replace(/[\u1e25\u1e24]/g,"h")
+      .replace(/[\u1e47\u1e46\u1e45\u1e44\u00f1\u00d1]/g,"n").replace(/[\u1e6d\u1e6c]/g,"t").replace(/[\u1e0d\u1e0c]/g,"d");
     return t.replace(/\s+/g," ").trim();
   }
   function profileId(){ try{ var id=localStorage.getItem(VOICE_KEY); if(id&&PROFILES[id]) return id; }catch(e){} return "ruhig"; }
@@ -102,7 +108,13 @@
   function start(){
     if(!window.speechSynthesis){ var err=document.getElementById("err"); if(err) err.textContent="Dieser Browser kann nicht vorlesen."; return; }
     var t=window.tvExcerptSpeak||"";
-    if(!t){ var h=document.getElementById("dlgT"); var au=document.getElementById("dlgTags"); var body=document.getElementById("dlgB"); t=[h&&h.textContent, au&&au.textContent, body&&body.textContent].filter(Boolean).join(". "); }
+    if(!t){
+      /* nur Überschrift, Autor, Text - keine Buttons/Labels */
+      var h=document.getElementById("dlgT"), au=document.getElementById("dlgTags"), body=document.getElementById("dlgB");
+      if(body && body.getAttribute("data-fmt")==="185" && window.tvFormatExcerpt){
+        t=[h&&h.textContent, au&&au.textContent, body.textContent].filter(Boolean).join(". ");
+      } else { t=""; }
+    }
     t=(t||"").trim();
     if(!t||/wird geladen/i.test(t)||/Kein Text/i.test(t)){ var err2=document.getElementById("err"); if(err2) err2.textContent="Excerpt noch nicht geladen."; return; }
     stop(); queue=chunks(speakReady(t)); speaking=true; lockPlayer(); paint(); try{ speechSynthesis.resume(); }catch(e){} speakNext();
