@@ -121,8 +121,7 @@ function saveState(){
 let i=-1,resumeTo=0,sichtbar=LESUNGEN.slice(),started=false;
 let userPaused=false;
 let interruptTimer=0;
-/* [Grok-Bot] V1.90: Zustand bei Unterbrechung durch andere Apps */
-let extInterrupted=false, extPausedAt=0, extLastAutoResume=0;
+/* [Grok-Bot] V1.91: WhatsApp-Pause aus V1.90 zurückgenommen (Autostart lud nicht); Verhalten wie V1.89 */
 function clearInterruptTimer(){ if(interruptTimer){ clearTimeout(interruptTimer); interruptTimer=0; } }
 window.__tvModal=false;
 window.__tvGuardUntil=0;
@@ -438,25 +437,11 @@ a.addEventListener("pause",function(){
   const nearEnd=(a.ended) || (isFinite(dur) && dur>0 && a.currentTime>=dur-0.5);
   if(nearEnd || !a.getAttribute("src")) return;
   clearInterruptTimer();
-  /* [Grok-Bot] V1.90: Andere App (z. B. WhatsApp-Video) übernimmt den Ton. Dann nicht dagegen ankämpfen:
-     pausiert bleiben, Stelle merken und erst weitermachen, wenn der Player wieder geöffnet wird
-     (oder Play auf dem Sperrbildschirm). Nur wenn der Player sichtbar ist, einmal kurz neu starten. */
-  const now=Date.now();
-  const hidden=document.visibilityState==="hidden";
-  const fighting=(now-extLastAutoResume)<15000;
-  if(hidden || fighting){
-    extInterrupted=true;
-    extPausedAt=a.currentTime||0;
-    try{ if(navigator.mediaSession) navigator.mediaSession.playbackState="paused"; }catch(e){}
-    return;
-  }
   interruptTimer=setTimeout(function(){
     interruptTimer=0;
     if(userPaused || !a.paused || !a.getAttribute("src")) return;
-    if(document.visibilityState==="hidden"){ extInterrupted=true; extPausedAt=a.currentTime||0; return; }
-    extLastAutoResume=Date.now();
     const p=a.play();
-    if(p&&p.catch)p.catch(function(){ extInterrupted=true; extPausedAt=a.currentTime||0; });
+    if(p&&p.catch)p.catch(function(){ recoverPlayback("interrupt"); });
   },550);
 });
 a.addEventListener("ended",function(){
@@ -484,7 +469,6 @@ a.addEventListener("waiting",function(){
   },12000);
 });
 a.addEventListener("playing",function(){
-  extInterrupted=false; /* [Grok-Bot] V1.90 */
   recoverTries=0;
   clearRecoverTimers();
   clearInterruptTimer();
@@ -530,14 +514,8 @@ try{
 document.addEventListener("visibilitychange",function(){
   if(document.visibilityState!=="visible") return;
   if(userPaused || !a.paused || !a.getAttribute("src")) return;
-  /* [Grok-Bot] V1.90: Nach einer Unterbrechung durch eine andere App 3 s zurück und weiter. */
-  if(extInterrupted){
-    extInterrupted=false;
-    extLastAutoResume=0;
-    try{ const back=Math.max(0,(extPausedAt||a.currentTime||0)-3); if(isFinite(back)) a.currentTime=back; }catch(e){}
-  }
   const p=a.play();
-  if(p&&p.catch)p.catch(function(){ document.getElementById("err").textContent="Pausiert — Play tippen zum Weiterhören."; });
+  if(p&&p.catch)p.catch(function(){});
 });
 function mergeEntries(arr){
   if(!Array.isArray(arr)) return 0;
