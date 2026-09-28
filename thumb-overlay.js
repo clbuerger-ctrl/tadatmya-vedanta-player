@@ -1,6 +1,7 @@
 /* [Grok-Bot] V1.88: Titelbild (YouTube-Thumbnail) bei jedem Start eines Vortrags 4 Sekunden einblenden,
    der Ton läuft im Hintergrund schon. Nicht erneut bei Stream-Reparatur/Resume desselben Vortrags innerhalb von 10 Min.
    Neue Vorträge: Zeile "@yt: <Nr> <YouTube-ID>" in katalog.txt (katalog.js trägt sie in TV_THUMBS ein). */
+/* [Grok-Bot] V1.89: Einblendung fängt keine Taps mehr ab (pointer-events:none); Tippen in die Liste startet sofort den anderen Vortrag. */
 (function(){
   let lastKey="", lastAt=0;
   function lectureKey(L){

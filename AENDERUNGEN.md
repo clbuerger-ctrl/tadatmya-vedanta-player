@@ -21,6 +21,7 @@ Damit beide die Arbeit des anderen erkennen, gilt ab V1.87:
 
 ## Verlauf
 
+- **V1.89 [Grok-Bot]** – Fehler aus V1.88 behoben: Die Titelbild-Einblendung lag 4 s über der ganzen Seite und fing alle Taps ab, dadurch ließ sich in dieser Zeit kein anderer Vortrag starten. Jetzt gehen Taps durch (`#thumbOv.on` mit `pointer-events:none` in `index.html`).
 - **V1.88 [Grok-Bot]** – Titelbild bei jedem Start eines Vortrags 4 s statt 5 s (vorher nur einmal pro Sitzung); nicht erneut bei Stream-Reparatur desselben Vortrags innerhalb 10 Min. `@yt`-Zeilen in `katalog.txt` (#36 = wobhNn2LqiY), `thumbs.js` um #36 ergänzt.
 - **V1.87 [Grok-Bot]** – Zeitraum kommt bei jedem Aufruf aus `katalog.txt` (neu: 13.12.2025 – 27.09.2026). Die alten Dropbox-Abrufe in `app.js` (zeitraum.txt, katalog.json/.txt) scheitern still und werden von `katalog.js` überstimmt; sie können bei der nächsten Änderung an `app.js` entfernt werden. Kapitel bei 26 Einträgen in `lesungen.js` nach den Abschnittsnummern der Texte korrigiert (#36 vorläufig „10.2 ff.“). Kennzeichnung eingeführt (diese Datei).
 - **V1.86 [Grok-Bot]** – #36 ergänzt; `katalog.txt` + `katalog.js` (neue MP3s erscheinen automatisch); `KATALOG.md`.
