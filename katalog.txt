@@ -1,0 +1,49 @@
+# Katalog der MP3-Dateien im Dropbox-Ordner "03 Bhakti Marga/00 Tadatmiya Vedanta"
+# Spiegel für den Player (GitHub Pages lädt diese Datei ohne CORS-Probleme).
+# Eine MP3 pro Zeile, exakter Dropbox-Dateiname.
+# Optional mit Titel/Tags/Kapitel:  Dateiname.mp3 | Titel | #Tag1 #Tag2 | Kap. x
+# Zeilen mit # am Anfang sind Kommentare. Details: KATALOG.md
+Tādātmya Vedānta - Einführung Teil 1.mp3
+Tādātmya Vedānta - Einführung Teil 2.mp3
+Tādātmya Vedānta - Vortrag #1 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #2 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #2b zum Buch über die Philosophie der Hari Bhakta Sampradaya - Vertiefung.mp3
+Tādātmya Vedānta - Vortrag #3 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #4 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #5 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #6 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #7 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #8 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #9 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #10 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #11 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #12 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #13 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #14 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #15 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #16 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #17 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #18 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #19 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #20 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #21 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #22 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #23 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #24 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #25 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #26 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #27 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #28 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #29 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #30 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #31 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #32 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #33 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #34 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #35 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - Vortrag #36 zum Buch über die Philosophie der Hari Bhakta Sampradaya.mp3
+Tādātmya Vedānta - A Siddhanta for Modern Times (Swami Revatikaanta & Mayuran).mp3
+Tādātmya Vedānta - Thinking Bhakti EP27 Series 1of3 - The Sampradaya Game (Swami Revatikaanta).mp3
+Tādātmya Vedānta - Thinking Bhakti EP28 Series 2of3 - Vedanta of Paramahamsa Vishwananda (Swami Revatikaanta).mp3
+Tādātmya Vedānta - Thinking Bhakti EP29 Series 3of3 - Categories of Reality (Swami Revatikaanta).mp3
+Tādātmya Vedānta - Unity without erasing difference (Pandit Mayuran EP10).mp3
