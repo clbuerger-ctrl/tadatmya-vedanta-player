@@ -15,11 +15,13 @@ Damit beide die Arbeit des anderen erkennen, gilt ab V1.87:
 
 - **Dropbox im Browser:** Dropbox blockiert Abrufe von Textdateien (katalog, zeitraum) aus anderen Webseiten (CORS). Nur die MP3-Wiedergabe funktioniert direkt aus Dropbox. Listen und Zeitraum stehen deshalb in `katalog.txt` hier im Repo.
 - **Zeitraum:** Zeile `@zeitraum: TT.MM.JJJJ – TT.MM.JJJJ` in `katalog.txt`. Der Player liest sie bei jedem Aufruf neu (`katalog.js`). Ende = Datum der letzten Live-Aufnahme laut YouTube.
+- **Titelbilder:** Beim Start eines Vortrags wird 4 Sekunden das YouTube-Titelbild gezeigt (`thumb-overlay.js`), der Ton läuft schon. Nummer und YouTube-ID stehen in `thumbs.js`; neue Vorträge bekommen eine Zeile `@yt: <Nr> <YouTube-ID>` in `katalog.txt`.
 - **Statistik:** nur aus Tageswerten aufsummiert (`stats-daily.js`), keine eigenen Monats- oder Gesamtzähler.
 - **Excerpts:** `texte/N.txt` = Überschrift, „geschrieben von …“, Leerzeile, Text (siehe `texte/README.txt`).
 
 ## Verlauf
 
+- **V1.88 [Grok-Bot]** – Titelbild bei jedem Start eines Vortrags 4 s statt 5 s (vorher nur einmal pro Sitzung); nicht erneut bei Stream-Reparatur desselben Vortrags innerhalb 10 Min. `@yt`-Zeilen in `katalog.txt` (#36 = wobhNn2LqiY), `thumbs.js` um #36 ergänzt.
 - **V1.87 [Grok-Bot]** – Zeitraum kommt bei jedem Aufruf aus `katalog.txt` (neu: 13.12.2025 – 27.09.2026). Die alten Dropbox-Abrufe in `app.js` (zeitraum.txt, katalog.json/.txt) scheitern still und werden von `katalog.js` überstimmt; sie können bei der nächsten Änderung an `app.js` entfernt werden. Kapitel bei 26 Einträgen in `lesungen.js` nach den Abschnittsnummern der Texte korrigiert (#36 vorläufig „10.2 ff.“). Kennzeichnung eingeführt (diese Datei).
 - **V1.86 [Grok-Bot]** – #36 ergänzt; `katalog.txt` + `katalog.js` (neue MP3s erscheinen automatisch); `KATALOG.md`.
 - **V1.85 [Grok-Bot]** – Excerpts 1–35 auf Überschrift/Autor/Text umgestellt; `excerpt-format.js`, `excerpt-tts.js`.

@@ -33,7 +33,8 @@ window.TV_THUMBS={
   32:{yt:"BDb-dPKlQfE"},
   33:{yt:"GS2DYnsAcbY"},
   34:{yt:"50niMJELT4I"},
-  35:{yt:"j87gkTUOkOc"}
+  35:{yt:"j87gkTUOkOc"},
+  36:{yt:"wobhNn2LqiY"} /* [Grok-Bot] V1.88 */
 };
 window.TV_THUMBS_FILE={
   "EP27":{yt:"HzbjM5fDrfM"},

@@ -1,5 +1,8 @@
+/* [Grok-Bot] V1.88: Titelbild (YouTube-Thumbnail) bei jedem Start eines Vortrags 4 Sekunden einblenden,
+   der Ton läuft im Hintergrund schon. Nicht erneut bei Stream-Reparatur/Resume desselben Vortrags innerhalb von 10 Min.
+   Neue Vorträge: Zeile "@yt: <Nr> <YouTube-ID>" in katalog.txt (katalog.js trägt sie in TV_THUMBS ein). */
 (function(){
-  const shown={};
+  let lastKey="", lastAt=0;
   function lectureKey(L){
     if(!L) return "";
     if(L.nr) return "nr-"+L.nr;
@@ -22,15 +25,17 @@
   }
   function showThumb(L){
     const key=lectureKey(L);
-    if(!key || shown[key]) return;
+    if(!key) return;
+    const now=Date.now();
+    if(key===lastKey && now-lastAt<600000) return;
     const el=document.getElementById("thumbOv");
     const img=document.getElementById("thumbOvImg");
     if(!el||!img) return;
-    shown[key]=1;
+    lastKey=key; lastAt=now;
     img.src=thumbSrc(L);
     el.classList.add("on");
     clearTimeout(el._tvThumbT);
-    el._tvThumbT=setTimeout(hideThumb, 5000);
+    el._tvThumbT=setTimeout(hideThumb, 4000);
   }
   window.tvShowThumb=showThumb;
   const orig=window.play;

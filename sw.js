@@ -1,5 +1,5 @@
 /* TV Player V1.87 — shell only; never cache Dropbox audio; never serve HTML as JS */
-const CACHE="tv-player-v187";
+const CACHE="tv-player-v188";
 const SHELL=[
   "./",
   "index.html",

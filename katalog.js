@@ -52,10 +52,17 @@ function applyKatalogZeitraum(t){
   if(typeof applyZeitraum==="function") applyZeitraum(m[1],m[2]);
   else { const el=document.getElementById("zeitraum"); if(el) el.textContent="Zeitraum: "+m[1]+" – "+m[2]; }
 }
+/* [Grok-Bot] V1.88: YouTube-Titelbilder aus katalog.txt ("@yt: 36 wobhNn2LqiY"), damit ein neuer Vortrag
+   sein Titelbild ohne Änderung an thumbs.js bekommt. */
+function applyKatalogThumbs(t){
+  window.TV_THUMBS=window.TV_THUMBS||{};
+  String(t||"").replace(/^@yt:\s*(\d+)\s+([A-Za-z0-9_-]{6,})\s*$/mg,function(_,nr,id){ window.TV_THUMBS[parseInt(nr,10)]={yt:id}; return _; });
+}
 (function loadRepoKatalog(){
   fetch("katalog.txt?v="+Date.now(),{cache:"no-store"}).then(function(r){ return r.ok?r.text():""; }).then(function(t){
     if(!t || /^\s*</.test(t)) return;
     applyKatalogZeitraum(t);
+    applyKatalogThumbs(t);
     mergeEntries(parseKatalogText(t));
   }).catch(function(){});
 })();
