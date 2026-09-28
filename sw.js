@@ -1,6 +1,6 @@
-/* [Grok-Bot] V1.89 Cache */
+/* [Grok-Bot] V1.90 Cache */
 /* TV Player V1.87 — shell only; never cache Dropbox audio; never serve HTML as JS */
-const CACHE="tv-player-v189";
+const CACHE="tv-player-v190";
 const SHELL=[
   "./",
   "index.html",
