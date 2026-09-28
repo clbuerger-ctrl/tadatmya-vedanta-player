@@ -1,4 +1,4 @@
-/* V1.86 Katalog: neue MP3s erscheinen auch bevor lesungen.js ergänzt ist (lädt nach app.js).
+/* [Grok-Bot] V1.86 Katalog: neue MP3s erscheinen auch bevor lesungen.js ergänzt ist (lädt nach app.js).
    1. katalog.txt hier im Repo (GitHub Pages, gleicher Ursprung, kein CORS-Problem) – Hauptquelle
    2. katalog.json/.txt in Dropbox (app.js loadExtraCatalog) scheitert im Browser meist an CORS:
       www.dropbox.com antwortet mit 302 ohne Access-Control-Allow-Origin.
@@ -43,9 +43,19 @@ function parseKatalogText(t){
     return {file:p[0],titel:p[1]||"",tags:p[2]||"",kap:p[3]||""};
   });
 }
+/* [Grok-Bot] V1.87: Zeitraum bei jedem Aufruf frisch aus katalog.txt ("@zeitraum: TT.MM.JJJJ – TT.MM.JJJJ").
+   Ersetzt den Abruf von zeitraum.txt aus Dropbox, den der Browser wegen CORS blockiert. */
+function applyKatalogZeitraum(t){
+  const m=String(t||"").match(/^@zeitraum:\s*(\d{1,2}\.\d{1,2}\.\d{4})\s*[–-]\s*(\d{1,2}\.\d{1,2}\.\d{4})\s*$/m);
+  if(!m) return;
+  window.TV_ZEITRAUM={from:m[1],to:m[2]};
+  if(typeof applyZeitraum==="function") applyZeitraum(m[1],m[2]);
+  else { const el=document.getElementById("zeitraum"); if(el) el.textContent="Zeitraum: "+m[1]+" – "+m[2]; }
+}
 (function loadRepoKatalog(){
   fetch("katalog.txt?v="+Date.now(),{cache:"no-store"}).then(function(r){ return r.ok?r.text():""; }).then(function(t){
     if(!t || /^\s*</.test(t)) return;
+    applyKatalogZeitraum(t);
     mergeEntries(parseKatalogText(t));
   }).catch(function(){});
 })();

@@ -1,0 +1,30 @@
+# Änderungen und Kennzeichnung
+
+Am Player arbeiten zwei KI-Helfer: **Grok.com** und **Grok-Bot** (Stabschef).
+Damit beide die Arbeit des anderen erkennen, gilt ab V1.87:
+
+- Jede Änderung im Code bekommt einen Kommentar mit Kennung und Version, z. B.
+  `/* [Grok-Bot] V1.87: … */` oder `/* [Grok.com] V1.88: … */`
+  (in .txt/.md: `# [Grok-Bot] V1.87: …`).
+- Jede neue Version bekommt hier oben einen Eintrag mit Kennung.
+- Commit-Nachrichten beginnen mit der Kennung, z. B. `[Grok-Bot] V1.87: …`.
+- Vor einer Änderung zuerst den neuesten Stand von `main` holen, damit nichts überschrieben wird.
+- Version immer an zwei Stellen hochzählen: `index.html` (Titel, Anzeige, `?v=`-Parameter der geänderten Skripte) und `sw.js` (Cache-Name).
+
+## Wichtige Regeln im Code
+
+- **Dropbox im Browser:** Dropbox blockiert Abrufe von Textdateien (katalog, zeitraum) aus anderen Webseiten (CORS). Nur die MP3-Wiedergabe funktioniert direkt aus Dropbox. Listen und Zeitraum stehen deshalb in `katalog.txt` hier im Repo.
+- **Zeitraum:** Zeile `@zeitraum: TT.MM.JJJJ – TT.MM.JJJJ` in `katalog.txt`. Der Player liest sie bei jedem Aufruf neu (`katalog.js`). Ende = Datum der letzten Live-Aufnahme laut YouTube.
+- **Statistik:** nur aus Tageswerten aufsummiert (`stats-daily.js`), keine eigenen Monats- oder Gesamtzähler.
+- **Excerpts:** `texte/N.txt` = Überschrift, „geschrieben von …“, Leerzeile, Text (siehe `texte/README.txt`).
+
+## Verlauf
+
+- **V1.87 [Grok-Bot]** – Zeitraum kommt bei jedem Aufruf aus `katalog.txt` (neu: 13.12.2025 – 27.09.2026). Die alten Dropbox-Abrufe in `app.js` (zeitraum.txt, katalog.json/.txt) scheitern still und werden von `katalog.js` überstimmt; sie können bei der nächsten Änderung an `app.js` entfernt werden. Kapitel bei 26 Einträgen in `lesungen.js` nach den Abschnittsnummern der Texte korrigiert (#36 vorläufig „10.2 ff.“). Kennzeichnung eingeführt (diese Datei).
+- **V1.86 [Grok-Bot]** – #36 ergänzt; `katalog.txt` + `katalog.js` (neue MP3s erscheinen automatisch); `KATALOG.md`.
+- **V1.85 [Grok-Bot]** – Excerpts 1–35 auf Überschrift/Autor/Text umgestellt; `excerpt-format.js`, `excerpt-tts.js`.
+- **V1.84 [Grok-Bot]** – `list-marks.js`: ✓ und Position, Zahl aktiver Hörer, „N× gehört“.
+- **V1.66 [Grok-Bot]** – `stats-daily.js`: Statistik aus Tageswerten.
+- Frühere Versionen: nicht gekennzeichnet.
+
+Von Grok-Bot stammen außerdem: `katalog.js`, `stats-daily.js`, `list-marks.js`, `excerpt-format.js`, `excerpt-tts.js`, `KATALOG.md`, diese Datei.
