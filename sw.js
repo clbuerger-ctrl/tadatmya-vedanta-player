@@ -1,7 +1,8 @@
+/* [Grok.com] V1.93 Cache */
 /* [Grok.com] V1.92 Cache */
 /* [Grok-Bot] V1.91 Cache */
-/* TV Player V1.87 — shell only; never cache Dropbox audio; never serve HTML as JS */
-const CACHE="tv-player-v192";
+/* TV Player — shell only; never cache Dropbox audio; never serve HTML as JS */
+const CACHE="tv-player-v193";
 const SHELL=[
   "./",
   "index.html",
@@ -14,6 +15,7 @@ const SHELL=[
   "stats-daily.js",
   "cover-rule.js",
   "cover-fx.js",
+  "auto-start.js",
   "live.js",
   "cover.jpg",
   "manifest.webmanifest",
@@ -46,7 +48,6 @@ self.addEventListener("fetch",function(e){
     }).catch(function(){
       return caches.match(e.request).then(function(hit){
         if(hit) return hit;
-        // Never fall back to index.html for scripts/assets — that emptied the playlist.
         if(isAssetRequest(e.request)) return Response.error();
         return caches.match("index.html");
       });
