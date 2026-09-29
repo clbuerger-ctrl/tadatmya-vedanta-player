@@ -1,3 +1,4 @@
+/* [Grok.com] V1.92: Unter Windows/Desktop bleibt neben dem Buchbild Platz für den Klappentext; Größe folgt der Fensterbreite. */
 (function () {
   function findCover() {
     return document.querySelector("img.cover");
@@ -10,18 +11,24 @@
   function sizeCover() {
     var img = findCover();
     if (!img) return;
-    img.style.setProperty("max-width", "none", "important");
     img.style.setProperty("object-fit", "contain", "important");
     if (isMobile()) {
       img.style.setProperty("width", "90vw", "important");
+      img.style.setProperty("max-width", "90vw", "important");
       img.style.setProperty("height", "auto", "important");
       img.style.setProperty("max-height", "none", "important");
-    } else {
-      var h = Math.max(160, Math.round(window.innerHeight * 0.5));
-      img.style.setProperty("height", h + "px", "important");
-      img.style.setProperty("max-height", h + "px", "important");
-      img.style.setProperty("width", "auto", "important");
+      return;
     }
+    var row = document.querySelector(".cover-row");
+    var avail = row ? row.clientWidth : window.innerWidth;
+    var textMin = 280;
+    var gap = 28;
+    var maxImgW = Math.max(140, Math.min(Math.round(avail * 0.42), avail - textMin - gap));
+    var maxImgH = Math.max(140, Math.round(window.innerHeight * 0.34));
+    img.style.setProperty("width", "auto", "important");
+    img.style.setProperty("height", "auto", "important");
+    img.style.setProperty("max-width", maxImgW + "px", "important");
+    img.style.setProperty("max-height", maxImgH + "px", "important");
   }
 
   function easeInOutCubic(t) {
@@ -73,7 +80,7 @@
   var resizeTimer = null;
   window.addEventListener("resize", function () {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(sizeCover, 100);
+    resizeTimer = setTimeout(sizeCover, 80);
   });
 
   if (document.readyState === "loading") {
