@@ -7,7 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
-<title>Tadatmya Vedanta Player V1.91</title>
+<title>Tadatmya Vedanta Player V1.92</title>
+<!-- [Grok.com] V1.92: Buchbild links, Klappentext rechts; Größe folgt dem Fenster (Windows). -->
 <!-- [Grok-Bot] V1.87: Zeitraum kommt bei jedem Aufruf aus katalog.txt; Kapitel korrigiert. Kennzeichnung siehe AENDERUNGEN.md -->
 <!-- [Grok-Bot] V1.91: V1.90 zurückgenommen, app.js wieder wie V1.89 -->
 <!-- [Grok-Bot] V1.90 (zurückgenommen): Player pausiert, wenn eine andere App (z. B. WhatsApp-Video) den Ton übernimmt, und macht beim Zurückkehren 3 s früher weiter -->
@@ -19,9 +20,14 @@
 body{margin:0;font-family:Georgia,serif;background:var(--bg);color:var(--text)}
 header{padding:12px 16px 8px;text-align:center}
 .cover-gap{display:block;height:1.6rem;width:100%;clear:both}
-.cover{display:block;width:90vw;max-width:90vw;height:auto;margin:0 auto 8px;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.45);object-fit:contain}
+.cover-row{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;max-width:72rem;margin:0 auto 8px;padding:0 8px;text-align:left}
+.cover-row a{flex:0 0 auto;line-height:0}
+.cover{display:block;width:90vw;max-width:90vw;height:auto;margin:0;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.45);object-fit:contain}
+.cover-blurb{margin:0;max-width:36rem;color:#d8c4a6;font-size:.92rem;line-height:1.5;font-style:normal}
 @media (min-width:801px){
-  .cover{width:auto;height:50vh;max-height:50vh;max-width:min(90vw,46rem)}
+  .cover-row{flex-direction:row;align-items:center;justify-content:center;gap:22px}
+  .cover{width:auto;height:auto;max-width:min(42vw,22rem);max-height:34vh}
+  .cover-blurb{flex:1 1 22rem;max-width:28rem}
 }
 h1{margin:0 auto;max-width:46rem;font-size:2rem;font-weight:normal;color:var(--gold);text-align:center;line-height:1.2}
 .ver{display:inline-block;margin-left:.35em;font-size:.42em;font-weight:normal;vertical-align:baseline;opacity:.72;letter-spacing:.02em}
@@ -73,11 +79,16 @@ button.item.active{background:#4a372b;color:var(--gold)}
 </head>
 <body>
 <header>
-  <h1>Tadatmya Vedanta Player <span class="ver">V1.91</span></h1>
+  <h1>Tadatmya Vedanta Player <span class="ver">V1.92</span></h1>
   <h2>Sammlung der veröffentlichten Sonntags-Vorträge von Rishi Sahadev (<a href="https://t.me/+7qSv0wH6VkE0Njky" target="_blank" rel="noopener">Telegram</a>) und eine Auswahl verschiedener Satsangs von Swami Revatikaanta und Pandit Mayuran zu diesem wichtigen Thema</h2>
   <div class="meta" id="zeitraum">Zeitraum: 13.12.2025 – 27.09.2026</div>
   <div class="cover-gap" aria-hidden="true"></div>
-  <img class="cover" src="cover.jpg" alt="Tadatmya Vedanta">
+  <div class="cover-row">
+    <a href="https://bhaktishop.com/products/tadatmya-vedanta" target="_blank" rel="noopener">
+      <img class="cover" src="cover.jpg" alt="Tadatmya Vedanta">
+    </a>
+    <p class="cover-blurb">Dieses Werk stellt Tādātmya Vedānta vor, die Philosophie der Hari Bhakta Sampradāya, gegründet von Paramahamsa Vishwananda. Es betrachtet die Bausteine der Wirklichkeit und ihre Verbindung, das höchste Ziel geistiger Verwirklichung und den Weg dorthin. Beides zugleich: philosophische Abhandlung und hingebungsvolle Gabe — eine Einladung zu Just Love.</p>
+  </div>
 </header>
 <div id="playerBar">
   <div class="now" id="now"></div>
@@ -164,7 +175,7 @@ button.item.active{background:#4a372b;color:var(--gold)}
 <script src="feedback.js?v=166"></script>
 <script src="stats-daily.js?v=166"></script>
 <script src="cover-rule.js?v=160"></script>
-<script src="cover-fx.js?v=160"></script>
+<script src="cover-fx.js?v=192"></script>
 <script src="live.js?v=184"></script>
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){})</script>
 </body>
