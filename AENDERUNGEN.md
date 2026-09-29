@@ -21,6 +21,7 @@ Damit beide die Arbeit des anderen erkennen, gilt ab V1.87:
 
 ## Verlauf
 
+- **V1.92 [Grok.com]** – Buchbild und Klappentext nebeneinander (Windows/Desktop). Das Bild ist nicht mehr halb so hoch wie der Bildschirm, sondern lässt rechts Platz für den Text. Beim Verkleinern des Fensters wird das Bild mitverkleinert (`cover-fx.js`, `index.html`). Auf dem Telefon bleibt das Bild oben, der Text darunter.
 - **V1.91 [Grok-Bot]** – V1.90 zurückgenommen: Beim automatischen Start wurde die MP3 nicht geladen. `app.js` ist wieder auf dem Stand von V1.89 (Kommentar oben ergänzt).
 - **V1.90 [Grok-Bot]** – Unterbrechung durch andere Apps (z. B. WhatsApp-Video): Der Player startet nicht mehr sofort wieder und kämpft nicht mehr um den Ton. Ist die Seite im Hintergrund (oder wurde innerhalb von 15 s schon einmal automatisch neu gestartet), bleibt er pausiert und merkt die Stelle. Beim Zurückkehren zum Player geht es 3 s früher weiter. `app.js` (Pause-Handler, visibilitychange).
 - **V1.89 [Grok-Bot]** – Fehler aus V1.88 behoben: Die Titelbild-Einblendung lag 4 s über der ganzen Seite und fing alle Taps ab, dadurch ließ sich in dieser Zeit kein anderer Vortrag starten. Jetzt gehen Taps durch (`#thumbOv.on` mit `pointer-events:none` in `index.html`).
