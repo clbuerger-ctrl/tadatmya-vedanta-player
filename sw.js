@@ -1,8 +1,9 @@
+/* [Grok-Bot] V1.94 Cache + notes.js */
 /* [Grok.com] V1.93 Cache */
 /* [Grok.com] V1.92 Cache */
 /* [Grok-Bot] V1.91 Cache */
 /* TV Player — shell only; never cache Dropbox audio; never serve HTML as JS */
-const CACHE="tv-player-v193";
+const CACHE="tv-player-v194";
 const SHELL=[
   "./",
   "index.html",
@@ -17,6 +18,7 @@ const SHELL=[
   "cover-fx.js",
   "auto-start.js",
   "live.js",
+  "notes.js",
   "cover.jpg",
   "manifest.webmanifest",
   "sw.js"

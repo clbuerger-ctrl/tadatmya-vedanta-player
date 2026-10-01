@@ -7,7 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
-<title>Tadatmya Vedanta Player V1.93</title>
+<title>Tadatmya Vedanta Player V1.94</title>
+<!-- [Grok-Bot] V1.94: Notizen pro Vortrag (Text, Lesezeichen, Handschrift; ohne Ton), notes.js -->
 <!-- [Grok.com] V1.93: Automatisch an der gespeicherten Stelle weiterhören (Taste AutoStart). -->
 <!-- [Grok.com] V1.92: Buchbild links, Klappentext rechts; Größe folgt dem Fenster (Windows). -->
 <!-- [Grok-Bot] V1.87: Zeitraum kommt bei jedem Aufruf aus katalog.txt; Kapitel korrigiert. Kennzeichnung siehe AENDERUNGEN.md -->
@@ -76,11 +77,39 @@ button.item.active{background:#4a372b;color:var(--gold)}
 #fbDlg textarea{min-height:90px;resize:vertical}
 #fbDlg label{display:block;margin:8px 0 4px;color:var(--gold);font-size:.85rem}
 .fb-item{border-top:1px solid #3d2f26;padding:8px 0;margin-top:8px;white-space:pre-wrap}
+/* [Grok-Bot] V1.94: Notizen */
+.notes-toolbar{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 8px;align-items:center}
+.notes-toolbar button{min-height:36px}
+#notesEditor{min-height:17.4rem;max-height:17.4rem;padding:10px 12px;margin:0 12px 8px;border:1px solid #5a4634;border-radius:8px;background:#3a2e26;color:var(--text);outline:none;line-height:1.45;white-space:pre-wrap;overflow:auto;-webkit-user-select:text;user-select:text}
+#notesEditor:empty:before{content:attr(data-placeholder);color:var(--muted);pointer-events:none}
+#notesEditor ul{margin:.4em 0 .4em 1.2em;padding:0}
+.notes-section{padding:4px 12px 8px;border-top:1px solid #3d2f26;margin-top:4px}
+.notes-section h4{margin:8px 0 6px;color:var(--gold);font-weight:normal;font-size:.9rem}
+.notes-bm-nav{display:flex;gap:6px;margin:0 0 6px}
+.notes-bm-nav button{flex:1;min-height:36px}
+.notes-empty{color:var(--muted);font-size:.82rem;margin:4px 0}
+.notes-bm{display:flex;gap:6px;align-items:center;margin:4px 0;border-radius:7px;padding:2px}
+.notes-bm.active{background:#4a372b;outline:1px solid var(--gold)}
+.notes-bm-go{flex:1;text-align:left}
+.notes-bm-del{min-width:36px;padding:4px 8px}
+.notes-media-item{margin:8px 0;padding-bottom:8px;border-bottom:1px solid #3d2f26}
+.notes-media-t{display:inline-block;margin-bottom:6px;min-height:32px}
+.notes-draw-thumb{max-width:100%;max-height:160px;border-radius:6px;display:block;margin-bottom:6px;border:1px solid #5a4634;background:#1a1410}
+#notesStatus{color:var(--muted);font-size:.78rem;padding:0 12px 6px;min-height:1em}
+.notes-hw-tools{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.notes-hw-tools button{min-height:36px}
+.notes-hw-scroll{width:100%;max-height:320px;overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid #5a4634;border-radius:8px;background:#1a1410;touch-action:pan-y}
+#notesHwCanvas{display:block;width:100%;height:300px;touch-action:none;cursor:crosshair;background:#1a1410}
+.bm-track-wrap{padding:0 12px 2px;margin-top:-2px}
+#bmTrack{position:relative;height:14px;margin:0 0 2px;display:none}
+.bm-mark{position:absolute;top:0;width:10px;height:14px;margin-left:-5px;padding:0;border:none;border-radius:2px;background:var(--gold);cursor:pointer;opacity:.85;min-height:0;z-index:2}
+.bm-mark.active{opacity:1;box-shadow:0 0 0 2px #f3e6d0;background:#e8c07a}
+.bm-mark:hover{opacity:1}
 </style>
 </head>
 <body>
 <header>
-  <h1>Tadatmya Vedanta Player <span class="ver">V1.93</span></h1>
+  <h1>Tadatmya Vedanta Player <span class="ver">V1.94</span></h1>
   <h2>Sammlung der veröffentlichten Sonntags-Vorträge von Rishi Sahadev (<a href="https://t.me/+7qSv0wH6VkE0Njky" target="_blank" rel="noopener">Telegram</a>) und eine Auswahl verschiedener Satsangs von Swami Revatikaanta und Pandit Mayuran zu diesem wichtigen Thema</h2>
   <div class="meta" id="zeitraum">Zeitraum: 13.12.2025 – 27.09.2026</div>
   <div class="cover-gap" aria-hidden="true"></div>
@@ -94,6 +123,7 @@ button.item.active{background:#4a372b;color:var(--gold)}
 <div id="playerBar">
   <div class="now" id="now"></div>
   <audio id="a" controls preload="none" playsinline webkit-playsinline controlsList="nodownload"></audio>
+  <div class="bm-track-wrap"><div id="bmTrack" aria-label="Lesezeichen auf der Zeitleiste"></div></div>
   <div class="transport">
     <button type="button" onclick="prev()">&#9664; Zurück</button>
     <button type="button" id="btnSkipBack" disabled>-10s</button>
@@ -109,6 +139,7 @@ button.item.active{background:#4a372b;color:var(--gold)}
     <button class="gold" type="button" id="btnResume" onclick="resumeNow()">Weiterhören</button>
     <button type="button" id="btnAutoStart" aria-pressed="true">AutoStart an</button>
     <button type="button" onclick="showSum()">Excerpt</button>
+    <button type="button" class="gold" id="btnNotes" onclick="openNotes()">Notizen</button>
     <button type="button" id="btnVolNorm" onclick="toggleVolNorm()" aria-pressed="false">Vol Norm aus</button>
   </div>
   <div class="row">
@@ -138,6 +169,47 @@ button.item.active{background:#4a372b;color:var(--gold)}
       </select>
       <button type="button" class="gold" id="btnSpeakSum" onclick="toggleExcerptSpeak()">Vorlesen</button>
       <button type="button" id="btnCloseSum" onclick="hideSum()">Schließen</button>
+    </div>
+  </div>
+</div>
+<!-- [Grok-Bot] V1.94: Notizen-Dialog (Text, Lesezeichen, Handschrift; ohne Ton) -->
+<div class="overlay" id="notesDlg">
+  <div class="panel">
+    <div class="dlghead"><h3 id="notesTitle">Notizen</h3><button type="button" class="gold btnCloseTop" onclick="hideNotes()">Schließen</button></div>
+    <p id="notesStatus" class="tags"></p>
+    <div class="notes-toolbar">
+      <button type="button" id="notesBold" title="Fett"><b>F</b></button>
+      <button type="button" id="notesItalic" title="Kursiv"><i>K</i></button>
+      <button type="button" id="notesUl" title="Liste">• Liste</button>
+      <button type="button" class="gold" id="notesBookmark" title="Zeitmarke setzen (−2,5s)">an dieser Stelle</button>
+      <button type="button" id="notesClear" title="Notiz löschen">Löschen</button>
+    </div>
+    <div id="notesEditor" contenteditable="true" data-placeholder="Persönliche Notiz zu dieser Lesung …" spellcheck="true"></div>
+    <div class="dlgbody" style="flex:1 1 auto;max-height:55%;white-space:normal;">
+      <div class="notes-section">
+        <h4>Lesezeichen</h4>
+        <div class="notes-bm-nav">
+          <button type="button" id="notesBmPrev" disabled>◀ Vorheriges</button>
+          <button type="button" id="notesBmNext" disabled>Nächstes ▶</button>
+        </div>
+        <div id="notesBookmarks"></div>
+      </div>
+      <div class="notes-section">
+        <h4>Handschrift</h4>
+        <div class="notes-hw-tools">
+          <button type="button" id="notesHwPen" class="gold">Stift</button>
+          <button type="button" id="notesHwEraser">Radierer</button>
+          <button type="button" id="notesHwClear">Leeren</button>
+          <button type="button" class="gold" id="notesHwSave">Speichern</button>
+        </div>
+        <div class="notes-hw-scroll" id="notesHwScroll">
+          <canvas id="notesHwCanvas" width="600" height="300" aria-label="Handschrift-Pad"></canvas>
+        </div>
+        <div id="notesDrawings" style="margin-top:8px;"></div>
+      </div>
+    </div>
+    <div class="dlgfoot" style="display:flex;gap:8px;">
+      <button type="button" id="btnCloseNotes" style="flex:1">Schließen</button>
     </div>
   </div>
 </div>
@@ -180,6 +252,7 @@ button.item.active{background:#4a372b;color:var(--gold)}
 <script src="cover-fx.js?v=192"></script>
 <script src="auto-start.js?v=193"></script>
 <script src="live.js?v=184"></script>
+<script src="notes.js?v=194"></script>
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){})</script>
 </body>
 </html>
