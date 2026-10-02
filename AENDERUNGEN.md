@@ -21,6 +21,7 @@ Damit beide die Arbeit des anderen erkennen, gilt ab V1.87:
 
 ## Verlauf
 
+- **V1.95 [Grok-Bot]** – Wächter gegen Aussetzer mitten im Vortrag (neue Datei `watchdog.js`, nach `app.js` geladen): prüft alle 3 s; steht die Zeit 15 s still, obwohl der Ton laufen soll, wird die Quelle neu geladen und an derselben Stelle weitergespielt. Stoppt der Player unerwartet (nicht per Pause-Taste), wird alle 4 s neu gestartet statt nur einmal. Hat `app.js` nach 3 Fehlversuchen aufgegeben, versucht der Wächter es mit wachsendem Abstand (8–30 s) bis zu 12 Mal. Während „Vorlesen“ (Sprachausgabe aktiv) greift der Wächter nicht. Der Startablauf ist unverändert.
 - **V1.94 [Grok-Bot]** – Notizen pro Vortrag: Button „Notizen“ neben Excerpt. Text (fett, kursiv, Liste), Lesezeichen „an dieser Stelle“ (2,5 s früher, mit Vorheriges/Nächstes und goldenen Marken unter dem Audio-Balken) und Handschrift-Pad (Stift, Radierer, Speichern mit Zeitstelle). Keine Tonaufnahme. Alles bleibt lokal im Browser des Geräts (localStorage + IndexedDB). Neue Datei `notes.js`, dazu `index.html` und `sw.js`.
 - **V1.92 [Grok.com]** – Buchbild und Klappentext nebeneinander (Windows/Desktop). Das Bild ist nicht mehr halb so hoch wie der Bildschirm, sondern lässt rechts Platz für den Text. Beim Verkleinern des Fensters wird das Bild mitverkleinert (`cover-fx.js`, `index.html`). Auf dem Telefon bleibt das Bild oben, der Text darunter.
 - **V1.91 [Grok-Bot]** – V1.90 zurückgenommen: Beim automatischen Start wurde die MP3 nicht geladen. `app.js` ist wieder auf dem Stand von V1.89 (Kommentar oben ergänzt).
