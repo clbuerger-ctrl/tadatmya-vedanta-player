@@ -7,7 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
-<title>Tadatmya Vedanta Player V1.96</title>
+<title>Tadatmya Vedanta Player V1.97</title>
+<!-- [Grok-Bot] V1.97: nur noch ein AutoStart-Schalter (alter #btnAuto aus feedback.js ausgeblendet) -->
 <!-- [Grok-Bot] V1.96: AutoStart scrollt die Liste nach dem Buchbild zum aktuellen Vortrag (auto-start.js) -->
 <!-- [Grok-Bot] V1.95: Wächter gegen Aussetzer: erkennt hängenden Stream und unerwartetes Stoppen, verbindet wiederholt neu -->
 <!-- [Grok-Bot] V1.94: Notizen pro Vortrag (Text, Lesezeichen, Handschrift; ohne Ton), notes.js -->
@@ -107,11 +108,13 @@ button.item.active{background:#4a372b;color:var(--gold)}
 .bm-mark{position:absolute;top:0;width:10px;height:14px;margin-left:-5px;padding:0;border:none;border-radius:2px;background:var(--gold);cursor:pointer;opacity:.85;min-height:0;z-index:2}
 .bm-mark.active{opacity:1;box-shadow:0 0 0 2px #f3e6d0;background:#e8c07a}
 .bm-mark:hover{opacity:1}
+/* [Grok-Bot] V1.97: doppelten AutoStart-Schalter ausblenden */
+#btnAuto{display:none!important}
 </style>
 </head>
 <body>
 <header>
-  <h1>Tadatmya Vedanta Player <span class="ver">V1.96</span></h1>
+  <h1>Tadatmya Vedanta Player <span class="ver">V1.97</span></h1>
   <h2>Sammlung der veröffentlichten Sonntags-Vorträge von Rishi Sahadev (<a href="https://t.me/+7qSv0wH6VkE0Njky" target="_blank" rel="noopener">Telegram</a>) und eine Auswahl verschiedener Satsangs von Swami Revatikaanta und Pandit Mayuran zu diesem wichtigen Thema</h2>
   <div class="meta" id="zeitraum">Zeitraum: 13.12.2025 – 27.09.2026</div>
   <div class="cover-gap" aria-hidden="true"></div>
@@ -253,7 +256,7 @@ button.item.active{background:#4a372b;color:var(--gold)}
 <script src="stats-daily.js?v=166"></script>
 <script src="cover-rule.js?v=160"></script>
 <script src="cover-fx.js?v=192"></script>
-<script src="auto-start.js?v=196"></script>
+<script src="auto-start.js?v=197"></script>
 <script src="live.js?v=184"></script>
 <script src="notes.js?v=194"></script>
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){})</script>

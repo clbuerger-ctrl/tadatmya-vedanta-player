@@ -11,8 +11,13 @@
   }
   function setOn(v){
     try{ localStorage.setItem(KEY, v?"an":"aus"); }catch(e){}
+    syncOld();
     paint();
   }
+  /* [Grok-Bot] V1.97: Der alte AutoStart-Schalter aus feedback.js (#btnAuto) ist ausgeblendet.
+     Seine Logik (Start beim ersten Tippen, falls der Browser Autoplay blockiert) folgt jetzt diesem Schalter. */
+  function syncOld(){ try{ localStorage.setItem("tvp-autostart", on()?"1":"0"); }catch(e){} }
+  syncOld();
   function paint(){
     var b=document.getElementById("btnAutoStart");
     if(!b) return;
