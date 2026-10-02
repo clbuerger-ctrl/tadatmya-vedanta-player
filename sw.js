@@ -1,10 +1,11 @@
+/* [Grok-Bot] V1.96 Cache */
 /* [Grok-Bot] V1.95 Cache + watchdog.js */
 /* [Grok-Bot] V1.94 Cache + notes.js */
 /* [Grok.com] V1.93 Cache */
 /* [Grok.com] V1.92 Cache */
 /* [Grok-Bot] V1.91 Cache */
 /* TV Player — shell only; never cache Dropbox audio; never serve HTML as JS */
-const CACHE="tv-player-v195";
+const CACHE="tv-player-v196";
 const SHELL=[
   "./",
   "index.html",

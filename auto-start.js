@@ -30,6 +30,35 @@
       setTimeout(function(){ blinkPlay(times-1, then); }, 180);
     }, 180);
   }
+  /* [Grok-Bot] V1.96: Beim AutoStart nach dem Hochscrollen des Buchbilds (cover-fx.js, fertig nach ca. 5 s)
+     die Liste so scrollen, dass der aktuelle Vortrag direkt unter dem Player steht. Nicht, wenn der Nutzer selbst scrollt. */
+  var t0=Date.now(), userScrolled=false;
+  ["wheel","touchmove","keydown"].forEach(function(ev){
+    window.addEventListener(ev,function(){ userScrolled=true; },{passive:true});
+  });
+  function scrollToCurrent(){
+    var wait=Math.max(400,(t0+5200)-Date.now());
+    setTimeout(function(){
+      if(userScrolled) return;
+      var it=document.querySelector("#list .item.active");
+      if(!it) return;
+      var bar=document.getElementById("playerBar");
+      var barH=bar?bar.getBoundingClientRect().height:0;
+      var y0=window.scrollY||0;
+      var target=Math.max(0,y0+it.getBoundingClientRect().top-barH-8);
+      var diff=target-y0;
+      if(Math.abs(diff)<4) return;
+      var start=performance.now(), dur=1200;
+      function step(now){
+        if(userScrolled) return;
+        var p=Math.min(1,(now-start)/dur);
+        var e=p<0.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
+        window.scrollTo(0,y0+diff*e);
+        if(p<1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    },wait);
+  }
   function boot(){
     paint();
     var btn=document.getElementById("btnAutoStart");
@@ -45,6 +74,7 @@
       if(!on()) return;
       blinkPlay(2, function(){
         if(typeof resumeNow==="function") resumeNow();
+        scrollToCurrent();
       });
     }, 4000);
   }
